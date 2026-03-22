@@ -62,11 +62,11 @@ class WorkflowInstanceStatus(str, enum.Enum):
 
 class AcceptanceCriteriaBase(BaseModel):
     """验收标准基础模型"""
-    content: str = Field(..., description="验收内容")
-    is_required: bool = Field(True, description="是否必填")
-    criteria_type: str = Field("manual", description="验收类型")
-    auto_check_script: Optional[str] = Field(None, description="自动检查脚本")
-    display_order: int = Field(0, description="显示顺序")
+    content: str = Field(description="验收内容")
+    is_required: bool = Field(default=True, description="是否必填")
+    criteria_type: str = Field(default="manual", description="验收类型")
+    auto_check_script: Optional[str] = Field(default=None, description="自动检查脚本")
+    display_order: int = Field(default=0, description="显示顺序")
 
 
 class AcceptanceCriteriaCreate(AcceptanceCriteriaBase):
@@ -96,13 +96,13 @@ class AcceptanceCriteriaResponse(AcceptanceCriteriaBase):
 
 class AcceptanceCriteriaResultBase(BaseModel):
     """验收结果基础模型"""
-    status: str = Field("pending", description="验收状态")
-    remark: Optional[str] = Field(None, description="验收备注")
+    status: str = Field(default="pending", description="验收状态")
+    remark: Optional[str] = Field(default=None, description="验收备注")
 
 
 class AcceptanceCriteriaResultCreate(AcceptanceCriteriaResultBase):
     """创建验收结果请求"""
-    criteria_id: int = Field(..., description="验收标准ID")
+    criteria_id: int = Field(description="验收标准ID")
 
 
 class AcceptanceCriteriaResultResponse(AcceptanceCriteriaResultBase):
@@ -123,7 +123,7 @@ class AcceptanceCriteriaResultResponse(AcceptanceCriteriaResultBase):
 
 class WorkItemDependencyBase(BaseModel):
     """工作项依赖基础模型"""
-    depends_on_id: int = Field(..., description="依赖的工作项ID")
+    depends_on_id: int = Field(description="依赖的工作项ID")
 
 
 class WorkItemDependencyCreate(WorkItemDependencyBase):
@@ -133,18 +133,18 @@ class WorkItemDependencyCreate(WorkItemDependencyBase):
 
 class WorkItemBase(BaseModel):
     """工作项基础模型"""
-    name: str = Field(..., description="工作项名称", max_length=100)
-    description: Optional[str] = Field(None, description="工作项描述")
-    work_item_type: str = Field(..., description="工作项类型")
-    display_order: int = Field(0, description="显示顺序")
-    estimated_duration: Optional[int] = Field(None, description="预估时长(分钟)")
-    is_required: bool = Field(True, description="是否必填")
+    name: str = Field(description="工作项名称", max_length=100)
+    description: Optional[str] = Field(default=None, description="工作项描述")
+    work_item_type: str = Field(description="工作项类型")
+    display_order: int = Field(default=0, description="显示顺序")
+    estimated_duration: Optional[int] = Field(default=None, description="预估时长(分钟)")
+    is_required: bool = Field(default=True, description="是否必填")
 
 
 class WorkItemCreate(WorkItemBase):
     """创建工作项请求"""
-    acceptance_criteria: List[AcceptanceCriteriaCreate] = Field([], description="验收标准列表")
-    depends_on: List[int] = Field([], description="依赖的工作项ID列表")
+    acceptance_criteria: List[AcceptanceCriteriaCreate] = Field(default=[], description="验收标准列表")
+    depends_on: List[int] = Field(default=[], description="依赖的工作项ID列表")
 
 
 class WorkItemUpdate(BaseModel):
@@ -173,13 +173,13 @@ class WorkItemResponse(WorkItemBase):
 
 class WorkflowBase(BaseModel):
     """工作流基础模型"""
-    name: str = Field(..., description="工作流名称", max_length=100)
-    description: Optional[str] = Field(None, description="工作流描述")
+    name: str = Field(description="工作流名称", max_length=100)
+    description: Optional[str] = Field(default=None, description="工作流描述")
 
 
 class WorkflowCreate(WorkflowBase):
     """创建工作流请求"""
-    work_items: List[WorkItemCreate] = Field([], description="工作项列表")
+    work_items: List[WorkItemCreate] = Field(default=[], description="工作项列表")
 
 
 class WorkflowUpdate(BaseModel):
@@ -194,7 +194,7 @@ class WorkflowListResponse(WorkflowBase):
     id: int
     is_preset: bool
     status: str
-    work_item_count: int = Field(0, description="工作项数量")
+    work_item_count: int = Field(default=0, description="工作项数量")
     created_by: Optional[int] = None
     created_at: datetime
 
@@ -232,8 +232,8 @@ class WorkflowProgressResponse(BaseModel):
 
 class WorkItemInstanceBase(BaseModel):
     """工作项实例基础模型"""
-    progress: int = Field(0, description="进度(%)", ge=0, le=100)
-    remark: Optional[str] = Field(None, description="备注")
+    progress: int = Field(default=0, description="进度(%)", ge=0, le=100)
+    remark: Optional[str] = Field(default=None, description="备注")
 
 
 class WorkItemInstanceResponse(WorkItemInstanceBase):
@@ -255,8 +255,8 @@ class WorkItemInstanceResponse(WorkItemInstanceBase):
 
 class WorkflowInstanceBase(BaseModel):
     """工作流实例基础模型"""
-    task_id: int = Field(..., description="关联的准入任务ID")
-    remark: Optional[str] = Field(None, description="备注")
+    task_id: int = Field(description="关联的准入任务ID")
+    remark: Optional[str] = Field(default=None, description="备注")
 
 
 class WorkflowInstanceCreate(WorkflowInstanceBase):
@@ -290,37 +290,37 @@ class WorkflowInstanceResponse(WorkflowInstanceBase):
 
 class WorkItemExecuteRequest(BaseModel):
     """执行工作项请求"""
-    work_item_id: int = Field(..., description="工作项ID")
-    assignee_id: Optional[int] = Field(None, description="执行人ID")
-    remark: Optional[str] = Field(None, description="备注")
+    work_item_id: int = Field(description="工作项ID")
+    assignee_id: Optional[int] = Field(default=None, description="执行人ID")
+    remark: Optional[str] = Field(default=None, description="备注")
 
 
 class WorkItemVerifyRequest(BaseModel):
     """验收工作项请求"""
-    work_item_id: int = Field(..., description="工作项ID")
-    status: str = Field(..., description="验收状态: completed/rejected")
-    progress: int = Field(100, description="进度(%)", ge=0, le=100)
-    remark: Optional[str] = Field(None, description="备注")
-    criteria_results: List[AcceptanceCriteriaResultCreate] = Field([], description="验收结果列表")
+    work_item_id: int = Field(description="工作项ID")
+    status: str = Field(description="验收状态: completed/rejected")
+    progress: int = Field(default=100, description="进度(%)", ge=0, le=100)
+    remark: Optional[str] = Field(default=None, description="备注")
+    criteria_results: List[AcceptanceCriteriaResultCreate] = Field(default=[], description="验收结果列表")
 
 
 # ==================== 列表请求模型 ====================
 
 class WorkflowListRequest(BaseModel):
     """工作流列表查询请求"""
-    page: int = Field(1, ge=1, description="页码")
-    per_page: int = Field(20, ge=1, le=100, description="每页条数")
-    is_preset: Optional[bool] = Field(None, description="是否预置模板")
-    keyword: Optional[str] = Field(None, description="关键词搜索")
+    page: int = Field(default=1, ge=1, description="页码")
+    per_page: int = Field(default=20, ge=1, le=100, description="每页条数")
+    is_preset: Optional[bool] = Field(default=None, description="是否预置模板")
+    keyword: Optional[str] = Field(default=None, description="关键词搜索")
 
 
 class WorkflowInstanceListRequest(BaseModel):
     """工作流实例列表查询请求"""
-    page: int = Field(1, ge=1, description="页码")
-    per_page: int = Field(20, ge=1, le=100, description="每页条数")
-    workflow_id: Optional[int] = Field(None, description="工作流模板ID")
-    task_id: Optional[int] = Field(None, description="准入任务ID")
-    status: Optional[str] = Field(None, description="状态")
+    page: int = Field(default=1, ge=1, description="页码")
+    per_page: int = Field(default=20, ge=1, le=100, description="每页条数")
+    workflow_id: Optional[int] = Field(default=None, description="工作流模板ID")
+    task_id: Optional[int] = Field(default=None, description="准入任务ID")
+    status: Optional[str] = Field(default=None, description="状态")
 
 
 class PaginationResponse(BaseModel):

@@ -31,18 +31,42 @@ import MainLayout from './components/Layout/MainLayout';
 
 function App() {
   const { isAuthenticated, user, fetchUser } = useAuthStore();
+  const [isInitializing, setIsInitializing] = React.useState(true);
 
-  // 初始化时获取用户信息（只执行一次）
+  // 初始化时获取用户信息
   useEffect(() => {
     console.log('App初始化, isAuthenticated:', isAuthenticated, 'user:', user);
     const token = localStorage.getItem('access_token');
     console.log('本地token:', token ? '存在' : '不存在');
-    // 只有有token且没有user信息时才调用fetchUser
-    if (token && !user) {
-      console.log('调用fetchUser获取用户信息');
-      fetchUser();
+    
+    // 如果有token，需要验证token有效性
+    if (token) {
+      console.log('调用fetchUser验证token');
+      fetchUser().finally(() => {
+        setIsInitializing(false);
+      });
+    } else {
+      setIsInitializing(false);
     }
   }, []); // 空依赖，只执行一次
+
+  // 初始化期间显示加载状态
+  if (isInitializing) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f0f2f5'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 24, marginBottom: 16 }}>加载中...</div>
+          <div style={{ color: '#999' }}>正在验证登录状态</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

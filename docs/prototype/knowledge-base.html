@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识库管理 - 仿真运维经理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1890ff;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-item {
+            padding: 8px 16px;
+            color: #595959;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #262626;
+        }
+        
+        .nav-item.active {
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1890ff;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* 主内容区 */
+        .main-container {
+            margin-top: 64px;
+            padding: 24px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* 页面标题 */
+        .page-header {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .page-desc {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* 操作栏 */
+        .action-bar {
+            background: #fff;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            width: 280px;
+            font-size: 14px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+            color: #fff;
+        }
+        
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+            border-color: #52c41a;
+        }
+        
+        .btn-success:hover {
+            background: #73d13d;
+            border-color: #73d13d;
+        }
+        
+        /* 主布局 */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+        
+        /* 左侧分类树 */
+        .category-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-tree {
+            list-style: none;
+        }
+        
+        .category-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .category-item.active {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .category-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .category-icon {
+            font-size: 16px;
+        }
+        
+        .category-count {
+            font-size: 12px;
+            color: #999;
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .category-item.active .category-count {
+            background: #bae7ff;
+            color: #1890ff;
+        }
+        
+        /* 右侧内容区 */
+        .content-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .tab:hover {
+            color: #1890ff;
+        }
+        
+        .tab.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+            font-weight: 500;
+        }
+        
+        /* 知识条目列表 */
+        .knowledge-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .knowledge-item {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .knowledge-item:hover {
+            border-color: #1890ff;
+            box-shadow: 0 2px 8px rgba(24,144,255,0.1);
+        }
+        
+        .knowledge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .knowledge-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .knowledge-badges {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .badge-primary {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .badge-success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .badge-warning {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+        
+        .knowledge-meta {
+            display: flex;
+            gap: 16px;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        
+        .knowledge-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        
+        .knowledge-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .knowledge-tags {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .tag {
+            padding: 2px 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .knowledge-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #999;
+        }
+        
+        /* 智能匹配面板 */
+        .match-panel {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .match-title {
+            font-weight: 500;
+            color: #52c41a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .match-score {
+            font-size: 24px;
+            font-weight: 600;
+            color: #52c41a;
+        }
+        
+        .match-reason {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        
+        .match-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* 导入面板 */
+        .import-panel {
+            background: #e6f7ff;
+            border: 2px dashed #91d5ff;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .import-icon {
+            font-size: 48px;
+            color: #1890ff;
+            margin-bottom: 16px;
+        }
+        
+        .import-text {
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .import-formats {
+            font-size: 13px;
+            color: #999;
+            margin-top: 12px;
+        }
+        
+        /* 版本历史 */
+        .version-timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+        
+        .version-timeline::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e8e8e8;
+        }
+        
+        .version-item {
+            position: relative;
+            padding-bottom: 20px;
+        }
+        
+        .version-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #1890ff;
+            border: 2px solid #fff;
+        }
+        
+        .version-item.current::before {
+            background: #52c41a;
+            width: 14px;
+            height: 14px;
+            left: -22px;
+            top: 2px;
+        }
+        
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        
+        .version-number {
+            font-weight: 500;
+        }
+        
+        .version-date {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .version-log {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .form-textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        /* 编辑器 */
+        .editor-toolbar {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: #f5f5f5;
+            border: 1px solid #d9d9d9;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .editor-btn {
+            padding: 4px 8px;
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .editor-content {
+            border: 1px solid #d9d9d9;
+            border-radius: 0 0 4px 4px;
+            min-height: 300px;
+            padding: 12px;
+        }
+        
+        /* 预览面板 */
+        .preview-panel {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .preview-title {
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        
+        .preview-content {
+            background: #fff;
+            border-radius: 4px;
+            padding: 16px;
+            border: 1px solid #e8e8e8;
+        }
+        
+        .generated-criteria {
+            border-left: 3px solid #52c41a;
+            padding-left: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .criteria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .criteria-content {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .criteria-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">🔧 仿真运维经理</div>
+            <nav class="nav-menu">
+                <a href="plan-management.html" class="nav-item">计划管理</a>
+                <a href="workflow-management.html" class="nav-item">工作流</a>
+                <a href="knowledge-base.html" class="nav-item active">知识库</a>
+                <a href="#" class="nav-item">台账管理</a>
+                <a href="#" class="nav-item">报告分析</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <span>运维经理</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">📚 知识库管理</h1>
+            <p class="page-desc">集中管理验收要求、基线标准等知识，支持智能匹配生成验收标准</p>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="搜索知识条目...">
+                <select class="btn">
+                    <option>所有类型</option>
+                    <option>验收要求</option>
+                    <option>基线标准</option>
+                    <option>操作手册</option>
+                    <option>检查清单</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn">📥 批量导入</button>
+                <button class="btn btn-primary">+ 新建知识条目</button>
+            </div>
+        </div>
+
+        <!-- 主布局 -->
+        <div class="main-layout">
+            <!-- 左侧分类树 -->
+            <aside class="category-panel">
+                <div class="panel-title">
+                    <span>📂 知识分类</span>
+                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">+ 新建</button>
+                </div>
+                <ul class="category-tree">
+                    <li class="category-item active">
+                        <div class="category-name">
+                            <span class="category-icon">📋</span>
+                            <span>基础资源标准化交付</span>
+                        </div>
+                        <span class="category-count">5</span>
+                    </li>
+                    <li class="category-item">
+                        <div class="category-name">
+                            <span class="category-icon">📊</span>
+                            <span>服务对象台账收集</span>
+                        </div>
+                        <span class="category-count">3</span>
+                    </li>
+                    <li class="category-item">
+                        <div class="category-name">
+                            <span class="category-icon">🔐</span>
+                            <span>生产环境权限移交</span>
+                        </div>
+                        <span class="category-count">2</span>
+                    </li>
+                    <li class="category-item">
+                        <div class="category-name">
+                            <span class="category-icon">🛡️</span>
+                            <span>安全基线核验</span>
+                        </div>
+                        <span class="category-count">4</span>
+                    </li>
+                    <li class="category-item">
+                        <div class="category-name">
+                            <span class="category-icon">📈</span>
+                            <span>监控告警配置确认</span>
+                        </div>
+                        <span class="category-count">2</span>
+                    </li>
+                    <li class="category-item">
+                        <div class="category-name">
+                            <span class="category-icon">📁</span>
+                            <span>自定义分类</span>
+                        </div>
+                        <span class="category-count">1</span>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- 右侧内容区 -->
+            <div class="content-panel">
+                <!-- 标签页 -->
+                <div class="tabs">
+                    <div class="tab active">知识条目</div>
+                    <div class="tab">智能匹配</div>
+                    <div class="tab">版本历史</div>
+                    <div class="tab">使用统计</div>
+                </div>
+
+                <!-- 导入面板 -->
+                <div class="import-panel">
+                    <div class="import-icon">📤</div>
+                    <div class="import-text">
+                        <strong>拖拽文件到此处上传</strong><br>
+                        或点击选择文件
+                    </div>
+                    <button class="btn btn-primary">选择文件</button>
+                    <div class="import-formats">
+                        支持格式：Markdown (.md)、Word (.doc/.docx)、Excel (.xls/.xlsx)、文本 (.txt)
+                    </div>
+                </div>
+
+                <!-- 智能匹配示例 -->
+                <div class="match-panel">
+                    <div class="match-header">
+                        <div class="match-title">
+                            <span>🎯</span>
+                            <span>智能匹配推荐</span>
+                        </div>
+                        <div class="match-score">95%</div>
+                    </div>
+                    <div class="match-reason">
+                        基于工作项类型"基础资源标准化交付"和关键词"系统基线、磁盘分区、网络安全"匹配
+                    </div>
+                    <div class="match-actions">
+                        <button class="btn btn-success">✓ 采纳推荐</button>
+                        <button class="btn">查看详情</button>
+                        <button class="btn">忽略</button>
+                    </div>
+                </div>
+
+                <!-- 知识条目列表 -->
+                <div class="knowledge-list">
+                    <!-- 知识条目1 -->
+                    <div class="knowledge-item">
+                        <div class="knowledge-header">
+                            <h3 class="knowledge-title">生产环境系统基线配置要求</h3>
+                            <div class="knowledge-badges">
+                                <span class="badge badge-primary">基线标准</span>
+                                <span class="badge badge-success">已发布</span>
+                            </div>
+                        </div>
+                        <div class="knowledge-meta">
+                            <span>📂 基础资源标准化交付</span>
+                            <span>📝 Markdown</span>
+                            <span>📅 2024-03-22</span>
+                            <span>👤 运维专家</span>
+                        </div>
+                        <div class="knowledge-desc">
+                            详细定义生产环境系统基线配置的7项检查要求，包括系统账户安全、磁盘分区合规、网络安全、系统基础环境配置、自动更新控制、证书管理、其他安全基线等。
+                        </div>
+                        <div class="knowledge-footer">
+                            <div class="knowledge-tags">
+                                <span class="tag">系统基线</span>
+                                <span class="tag">安全配置</span>
+                                <span class="tag">账户管理</span>
+                            </div>
+                            <div class="knowledge-stats">
+                                <span>👁️ 156 次查看</span>
+                                <span>✓ 15 次使用</span>
+                                <span>🔗 v1.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 知识条目2 -->
+                    <div class="knowledge-item">
+                        <div class="knowledge-header">
+                            <h3 class="knowledge-title">软件标准化部署规范</h3>
+                            <div class="knowledge-badges">
+                                <span class="badge badge-primary">基线标准</span>
+                                <span class="badge badge-success">已发布</span>
+                            </div>
+                        </div>
+                        <div class="knowledge-meta">
+                            <span>📂 基础资源标准化交付</span>
+                            <span>📝 Word</span>
+                            <span>📅 2024-03-20</span>
+                            <span>👤 运维专家</span>
+                        </div>
+                        <div class="knowledge-desc">
+                            定义软件部署的4项标准化要求，包括安装路径规范、安装脚本规范、一键部署支持、日志记录保存等，确保软件部署的标准化和可复现性。
+                        </div>
+                        <div class="knowledge-footer">
+                            <div class="knowledge-tags">
+                                <span class="tag">软件部署</span>
+                                <span class="tag">安装脚本</span>
+                                <span class="tag">bash4.0</span>
+                            </div>
+                            <div class="knowledge-stats">
+                                <span>👁️ 89 次查看</span>
+                                <span>✓ 8 次使用</span>
+                                <span>🔗 v1.1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 知识条目3 -->
+                    <div class="knowledge-item">
+                        <div class="knowledge-header">
+                            <h3 class="knowledge-title">系统基线检查脚本使用手册</h3>
+                            <div class="knowledge-badges">
+                                <span class="badge badge-warning">操作手册</span>
+                                <span class="badge badge-success">已发布</span>
+                            </div>
+                        </div>
+                        <div class="knowledge-meta">
+                            <span>📂 基础资源标准化交付</span>
+                            <span>📝 Markdown</span>
+                            <span>📅 2024-03-18</span>
+                            <span>👤 系统管理员</span>
+                        </div>
+                        <div class="knowledge-desc">
+                            详细介绍如何使用系统基线检查脚本，包括脚本下载、配置说明、执行步骤、结果解读等，帮助运维人员快速完成系统基线验证。
+                        </div>
+                        <div class="knowledge-footer">
+                            <div class="knowledge-tags">
+                                <span class="tag">检查脚本</span>
+                                <span class="tag">使用手册</span>
+                                <span class="tag">SSH</span>
+                            </div>
+                            <div class="knowledge-stats">
+                                <span>👁️ 234 次查看</span>
+                                <span>✓ 23 次使用</span>
+                                <span>🔗 v1.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 知识条目4 -->
+                    <div class="knowledge-item">
+                        <div class="knowledge-header">
+                            <h3 class="knowledge-title">应用系统台账收集检查清单</h3>
+                            <div class="knowledge-badges">
+                                <span class="badge badge-primary">检查清单</span>
+                                <span class="badge badge-success">已发布</span>
+                            </div>
+                        </div>
+                        <div class="knowledge-meta">
+                            <span>📂 服务对象台账收集</span>
+                            <span>📝 Excel</span>
+                            <span>📅 2024-03-15</span>
+                            <span>👤 运维专家</span>
+                        </div>
+                        <div class="knowledge-desc">
+                            Excel格式的应用系统台账检查清单，包含IP、主机名、配置、用途、所属系统、责任人、上线时间等7个必填字段的验证规则。
+                        </div>
+                        <div class="knowledge-footer">
+                            <div class="knowledge-tags">
+                                <span class="tag">台账收集</span>
+                                <span class="tag">检查清单</span>
+                                <span class="tag">Excel</span>
+                            </div>
+                            <div class="knowledge-stats">
+                                <span>👁️ 312 次查看</span>
+                                <span>✓ 45 次使用</span>
+                                <span>🔗 v1.2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 知识条目5 -->
+                    <div class="knowledge-item">
+                        <div class="knowledge-header">
+                            <h3 class="knowledge-title">安全加固报告验收要求</h3>
+                            <div class="knowledge-badges">
+                                <span class="badge badge-primary">验收要求</span>
+                                <span class="badge badge-success">已发布</span>
+                            </div>
+                        </div>
+                        <div class="knowledge-meta">
+                            <span>📂 安全基线核验</span>
+                            <span>📝 Word</span>
+                            <span>📅 2024-03-10</span>
+                            <span>👤 安全团队</span>
+                        </div>
+                        <div class="knowledge-desc">
+                                定义安全加固报告的验收标准，要求报告明确标注"通过"结论，覆盖密码安全、漏洞情况、网络安全等方面，支持AI自动分析。
+                        </div>
+                        <div class="knowledge-footer">
+                            <div class="knowledge-tags">
+                                <span class="tag">安全基线</span>
+                                <span class="tag">加固报告</span>
+                                <span class="tag">AI分析</span>
+                            </div>
+                            <div class="knowledge-stats">
+                                <span>👁️ 178 次查看</span>
+                                <span>✓ 32 次使用</span>
+                                <span>🔗 v1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新建/编辑知识条目模态框 -->
+    <div class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">新建知识条目</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">标题 *</label>
+                    <input type="text" class="form-input" placeholder="请输入知识条目标题">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">所属分类 *</label>
+                        <select class="form-select">
+                            <option>请选择分类</option>
+                            <option selected>基础资源标准化交付</option>
+                            <option>服务对象台账收集</option>
+                            <option>生产环境权限移交</option>
+                            <option>安全基线核验</option>
+                            <option>监控告警配置确认</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">内容类型 *</label>
+                        <select class="form-select">
+                            <option>请选择类型</option>
+                            <option selected>基线标准</option>
+                            <option>验收要求</option>
+                            <option>操作手册</option>
+                            <option>检查清单</option>
+                            <option>验证脚本</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">标签</label>
+                    <input type="text" class="form-input" placeholder="输入标签，用逗号分隔">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">内容 *</label>
+                    <div class="editor-toolbar">
+                        <button class="editor-btn">B</button>
+                        <button class="editor-btn">I</button>
+                        <button class="editor-btn">标题</button>
+                        <button class="editor-btn">列表</button>
+                        <button class="editor-btn">表格</button>
+                        <button class="editor-btn">代码</button>
+                    </div>
+                    <textarea class="form-textarea" placeholder="支持 Markdown 格式"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">关联工作项类型</label>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" checked> 基础资源标准化交付
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox"> 服务对象台账
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox"> 生产环境权限移交
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox"> 安全基线核验
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox"> 监控告警配置
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 预览面板 -->
+                <div class="preview-panel">
+                    <div class="preview-title">🎯 验收标准生成预览</div>
+                    <div class="preview-content">
+                        <div class="generated-criteria">
+                            <div class="criteria-header">
+                                <span style="font-weight: 500;">检查项 1</span>
+                                <span class="badge badge-success">置信度 95%</span>
+                            </div>
+                            <div class="criteria-content">系统账户安全 - 设定符合《账户创建以及权限》基线要求</div>
+                            <div class="criteria-meta">
+                                <span>验证方式: 脚本验证</span>
+                                <span>交付物: 脚本执行报告</span>
+                                <span>必填: 是</span>
+                            </div>
+                        </div>
+                        <div class="generated-criteria">
+                            <div class="criteria-header">
+                                <span style="font-weight: 500;">检查项 2</span>
+                                <span class="badge badge-success">置信度 95%</span>
+                            </div>
+                            <div class="criteria-content">磁盘分区合规 - 系统盘与应用/数据盘物理或逻辑隔离</div>
+                            <div class="criteria-meta">
+                                <span>验证方式: 脚本验证</span>
+                                <span>交付物: 脚本执行报告</span>
+                                <span>必填: 是</span>
+                            </div>
+                        </div>
+                        <div class="generated-criteria">
+                            <div class="criteria-header">
+                                <span style="font-weight: 500;">检查项 3</span>
+                                <span class="badge badge-success">置信度 92%</span>
+                            </div>
+                            <div class="criteria-content">网络安全 - 防火墙策略最小化，仅开放必要端口</div>
+                            <div class="criteria-meta">
+                                <span>验证方式: 脚本验证</span>
+                                <span>交付物: 脚本执行报告</span>
+                                <span>必填: 是</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn">取消</button>
+                <button class="btn">保存草稿</button>
+                <button class="btn btn-primary">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 版本历史模态框 -->
+    <div class="modal-overlay" style="display: none;">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">版本历史</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="version-timeline">
+                    <div class="version-item current">
+                        <div class="version-header">
+                            <span class="version-number">v1.2 (当前版本)</span>
+                            <span class="version-date">2024-03-22 12:00</span>
+                        </div>
+                        <div class="version-log">新增证书管理要求</div>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-header">
+                            <span class="version-number">v1.1</span>
+                            <span class="version-date">2024-03-20 10:00</span>
+                        </div>
+                        <div class="version-log">完善网络安全要求，新增防火墙配置细节</div>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-header">
+                            <span class="version-number">v1.0</span>
+                            <span class="version-date">2024-03-15 10:00</span>
+                        </div>
+                        <div class="version-log">初始版本，包含7项系统基线配置要求</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn">关闭</button>
+                <button class="btn btn-primary">创建新版本</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

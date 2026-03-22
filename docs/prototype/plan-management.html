@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计划管理 - 仿真运维经理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1890ff;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-item {
+            padding: 8px 16px;
+            color: #595959;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #262626;
+        }
+        
+        .nav-item.active {
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1890ff;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            margin-top: 64px;
+            padding: 24px;
+        }
+        
+        /* 页面标题栏 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #262626;
+        }
+        
+        .page-subtitle {
+            font-size: 14px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+        
+        /* 统计卡片 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .stat-title {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .stat-icon.blue { background: #e6f7ff; }
+        .stat-icon.orange { background: #fff7e6; }
+        .stat-icon.green { background: #f6ffed; }
+        .stat-icon.gray { background: #f5f5f5; }
+        .stat-icon.red { background: #fff1f0; }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #262626;
+            margin-bottom: 4px;
+        }
+        
+        .stat-trend {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+        
+        .stat-trend.up {
+            color: #52c41a;
+        }
+        
+        .stat-trend.down {
+            color: #ff4d4f;
+        }
+        
+        /* 图表区域 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .chart-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .chart-btn {
+            padding: 4px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .chart-btn.active {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+        
+        /* 模拟图表 */
+        .chart-placeholder {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .chart-bar {
+            width: 40px;
+            background: linear-gradient(to top, #1890ff, #69c0ff);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+        
+        .chart-bar-label {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #8c8c8c;
+            white-space: nowrap;
+        }
+        
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #1890ff 0deg 130deg,
+                #52c41a 130deg 220deg,
+                #faad14 220deg 290deg,
+                #ff4d4f 290deg 360deg
+            );
+            margin: 0 auto;
+        }
+        
+        .pie-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #595959;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        /* 计划列表 */
+        .list-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .list-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 200px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #fff;
+        }
+        
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #595959;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        
+        .data-table tr:hover {
+            background: #fafafa;
+        }
+        
+        /* 标签样式 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-p0 { background: #fff1f0; color: #cf1322; }
+        .badge-p1 { background: #fff7e6; color: #d46b08; }
+        .badge-p2 { background: #e6fffb; color: #08979c; }
+        .badge-p3 { background: #f6ffed; color: #389e0d; }
+        
+        .badge-category-standard { background: #e6f7ff; color: #096dd9; }
+        .badge-category-business { background: #f6ffed; color: #389e0d; }
+        
+        .badge-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .status-draft { background: #f5f5f5; color: #8c8c8c; }
+        .status-pending { background: #e6f7ff; color: #1890ff; }
+        .status-progress { background: #fff7e6; color: #fa8c16; }
+        .status-completed { background: #f6ffed; color: #52c41a; }
+        .status-overdue { background: #fff1f0; color: #f5222d; }
+        
+        /* 进度条 */
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-bar {
+            width: 100px;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #52c41a, #95de64);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            font-size: 13px;
+            color: #595959;
+            font-weight: 500;
+        }
+        
+        /* 操作按钮 */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .action-btn.primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+        
+        .action-btn.primary:hover {
+            background: #40a9ff;
+        }
+        
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px 20px;
+            gap: 8px;
+        }
+        
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .page-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .page-btn.active {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 延期提醒 */
+        .overdue-alert {
+            background: #fff1f0;
+            border: 1px solid #ffa39e;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .overdue-icon {
+            font-size: 24px;
+        }
+        
+        .overdue-content {
+            flex: 1;
+        }
+        
+        .overdue-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #cf1322;
+            margin-bottom: 4px;
+        }
+        
+        .overdue-desc {
+            font-size: 13px;
+            color: #595959;
+        }
+        
+        .overdue-action {
+            padding: 8px 16px;
+            background: #ff4d4f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        /* Plan ID 链接 */
+        .plan-id {
+            color: #1890ff;
+            font-family: monospace;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .plan-id:hover {
+            text-decoration: underline;
+        }
+        
+        /* 计划名称 */
+        .plan-name {
+            font-weight: 500;
+            color: #262626;
+        }
+        
+        .plan-systems {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+        
+        /* 时间显示 */
+        .plan-time {
+            font-size: 13px;
+            color: #595959;
+        }
+        
+        .time-remaining {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">🔧 仿真运维经理</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">计划管理</a>
+                <a href="workflow-management.html" class="nav-item">工作流</a>
+                <a href="knowledge-base.html" class="nav-item">知识库</a>
+                <a href="#" class="nav-item">台账管理</a>
+                <a href="#" class="nav-item">报告分析</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <span>运维经理</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">计划管理</h1>
+                <div class="page-subtitle">管理业务上线计划，跟踪核验任务进度</div>
+            </div>
+            <a href="plan-creation.html" class="btn btn-primary">
+                <span>+</span>
+                <span>创建计划</span>
+            </a>
+        </div>
+
+        <!-- 延期提醒 -->
+        <div class="overdue-alert">
+            <span class="overdue-icon">⚠️</span>
+            <div class="overdue-content">
+                <div class="overdue-title">有 2 个计划已延期</div>
+                <div class="overdue-desc">支付系统优化、数据库迁移计划已超过计划执行时间，请及时处理</div>
+            </div>
+            <button class="overdue-action">查看延期计划</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">计划总数</span>
+                    <div class="stat-icon blue">📊</div>
+                </div>
+                <div class="stat-value">25</div>
+                <div class="stat-trend up">↑ 较上月增加 12%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">进行中</span>
+                    <div class="stat-icon orange">▶️</div>
+                </div>
+                <div class="stat-value">8</div>
+                <div class="stat-trend">当前活跃计划</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">待执行</span>
+                    <div class="stat-icon gray">⏸️</div>
+                </div>
+                <div class="stat-value">5</div>
+                <div class="stat-trend">等待启动</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">已完成</span>
+                    <div class="stat-icon green">✅</div>
+                </div>
+                <div class="stat-value">10</div>
+                <div class="stat-trend up">本月完成 6 个</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">已延期</span>
+                    <div class="stat-icon red">⚠️</div>
+                </div>
+                <div class="stat-value">2</div>
+                <div class="stat-trend down">需要关注</div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">近30天计划趋势</span>
+                    <div class="chart-actions">
+                        <button class="chart-btn active">近7天</button>
+                        <button class="chart-btn">近30天</button>
+                        <button class="chart-btn">近90天</button>
+                    </div>
+                </div>
+                <div class="chart-placeholder">
+                    <div class="chart-bar" style="height: 40%;">
+                        <span class="chart-bar-label">03-18</span>
+                    </div>
+                    <div class="chart-bar" style="height: 60%;">
+                        <span class="chart-bar-label">03-19</span>
+                    </div>
+                    <div class="chart-bar" style="height: 30%;">
+                        <span class="chart-bar-label">03-20</span>
+                    </div>
+                    <div class="chart-bar" style="height: 80%;">
+                        <span class="chart-bar-label">03-21</span>
+                    </div>
+                    <div class="chart-bar" style="height: 50%;">
+                        <span class="chart-bar-label">03-22</span>
+                    </div>
+                    <div class="chart-bar" style="height: 70%;">
+                        <span class="chart-bar-label">03-23</span>
+                    </div>
+                    <div class="chart-bar" style="height: 90%;">
+                        <span class="chart-bar-label">03-24</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">计划分类占比</span>
+                </div>
+                <div class="pie-chart"></div>
+                <div class="pie-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: #1890ff;"></span>
+                        <span>标准上线 (72%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: #52c41a;"></span>
+                        <span>业务需求 (28%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 计划列表 -->
+        <div class="list-section">
+            <div class="list-header">
+                <span class="list-title">计划列表</span>
+                <div class="filter-bar">
+                    <input type="text" class="filter-input" placeholder="搜索计划名称/编号">
+                    <select class="filter-select">
+                        <option value="">全部分类</option>
+                        <option value="STANDARD">标准上线</option>
+                        <option value="BUSINESS">业务需求</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="">全部状态</option>
+                        <option value="DRAFT">草稿</option>
+                        <option value="PENDING">待执行</option>
+                        <option value="IN_PROGRESS">进行中</option>
+                        <option value="COMPLETED">已完成</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="">全部优先级</option>
+                        <option value="P0">P0-紧急</option>
+                        <option value="P1">P1-高</option>
+                        <option value="P2">P2-中</option>
+                        <option value="P3">P3-低</option>
+                    </select>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>计划编号</th>
+                        <th>计划名称</th>
+                        <th>分类</th>
+                        <th>优先级</th>
+                        <th>执行时间</th>
+                        <th>进度</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="plan-id">PLAN-20240322-001</span></td>
+                        <td>
+                            <div class="plan-name">订单系统V2.0上线</div>
+                            <div class="plan-systems">订单系统、支付系统</div>
+                        </td>
+                        <td><span class="badge badge-category-standard">标准上线</span></td>
+                        <td><span class="badge badge-p1">P1</span></td>
+                        <td>
+                            <div class="plan-time">2024-03-25 10:00</div>
+                            <div class="time-remaining">剩余 3 天</div>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%;"></div>
+                                </div>
+                                <span class="progress-text">75%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge-status status-progress">进行中</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="viewPlan('plan-001')">查看</button>
+                                <button class="action-btn primary" onclick="viewProgress('plan-001')">进度</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="plan-id">PLAN-20240321-003</span></td>
+                        <td>
+                            <div class="plan-name">会员系统功能升级</div>
+                            <div class="plan-systems">会员系统</div>
+                        </td>
+                        <td><span class="badge badge-category-business">业务需求</span></td>
+                        <td><span class="badge badge-p2">P2</span></td>
+                        <td>
+                            <div class="plan-time">2024-03-28 14:00</div>
+                            <div class="time-remaining">剩余 6 天</div>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%;"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge-status status-pending">待执行</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="viewPlan('plan-003')">查看</button>
+                                <button class="action-btn" onclick="editPlan('plan-003')">编辑</button>
+                                <button class="action-btn primary" onclick="startPlan('plan-003')">启动</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="plan-id">PLAN-20240320-002</span></td>
+                        <td>
+                            <div class="plan-name">支付系统优化</div>
+                            <div class="plan-systems">支付系统</div>
+                        </td>
+                        <td><span class="badge badge-category-standard">标准上线</span></td>
+                        <td><span class="badge badge-p0">P0</span></td>
+                        <td>
+                            <div class="plan-time">2024-03-20 10:00</div>
+                            <div class="time-remaining" style="color: #ff4d4f;">已延期 2 天</div>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 30%; background: linear-gradient(to right, #faad14, #ffc53d);"></div>
+                                </div>
+                                <span class="progress-text">30%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge-status status-overdue">已延期</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="viewPlan('plan-002')">查看</button>
+                                <button class="action-btn primary" onclick="continuePlan('plan-002')">继续</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="plan-id">PLAN-20240318-005</span></td>
+                        <td>
+                            <div class="plan-name">推荐算法更新</div>
+                            <div class="plan-systems">推荐系统</div>
+                        </td>
+                        <td><span class="badge badge-category-business">业务需求</span></td>
+                        <td><span class="badge badge-p1">P1</span></td>
+                        <td>
+                            <div class="plan-time">2024-03-22 09:00</div>
+                            <div class="time-remaining">已完成</div>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%;"></div>
+                                </div>
+                                <span class="progress-text">100%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge-status status-completed">已完成</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="viewPlan('plan-005')">查看</button>
+                                <button class="action-btn" onclick="viewReport('plan-005')">报告</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="plan-id">PLAN-20240315-008</span></td>
+                        <td>
+                            <div class="plan-name">数据库迁移</div>
+                            <div class="plan-systems">订单系统、库存系统</div>
+                        </td>
+                        <td><span class="badge badge-category-standard">标准上线</span></td>
+                        <td><span class="badge badge-p0">P0</span></td>
+                        <td>
+                            <div class="plan-time">2024-03-18 02:00</div>
+                            <div class="time-remaining" style="color: #ff4d4f;">已延期 4 天</div>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%; background: linear-gradient(to right, #faad14, #ffc53d);"></div>
+                                </div>
+                                <span class="progress-text">60%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge-status status-overdue">已延期</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="viewPlan('plan-008')">查看</button>
+                                <button class="action-btn primary" onclick="continuePlan('plan-008')">继续</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="plan-id">PLAN-20240325-012</span></td>
+                        <td>
+                            <div class="plan-name">优惠券系统重构</div>
+                            <div class="plan-systems">营销系统</div>
+                        </td>
+                        <td><span class="badge badge-category-business">业务需求</span></td>
+                        <td><span class="badge badge-p2">P2</span></td>
+                        <td>
+                            <div class="plan-time">2024-04-01 10:00</div>
+                            <div class="time-remaining">剩余 10 天</div>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%;"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge-status status-draft">草稿</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" onclick="editPlan('plan-012')">编辑</button>
+                                <button class="action-btn" onclick="deletePlan('plan-012')">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button class="page-btn" disabled>上一页</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <span>...</span>
+                <button class="page-btn">5</button>
+                <button class="page-btn">下一页</button>
+                <span style="margin-left: 16px; font-size: 13px; color: #8c8c8c;">共 25 条</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 查看计划详情
+        function viewPlan(planId) {
+            alert('查看计划详情: ' + planId);
+        }
+
+        // 查看进度
+        function viewProgress(planId) {
+            alert('查看计划进度: ' + planId);
+        }
+
+        // 编辑计划
+        function editPlan(planId) {
+            window.location.href = 'plan-creation.html?edit=' + planId;
+        }
+
+        // 启动计划
+        function startPlan(planId) {
+            if (confirm('确定要启动该计划吗？')) {
+                alert('计划已启动');
+            }
+        }
+
+        // 继续执行计划
+        function continuePlan(planId) {
+            alert('继续执行计划: ' + planId);
+        }
+
+        // 查看报告
+        function viewReport(planId) {
+            alert('查看验收报告: ' + planId);
+        }
+
+        // 删除计划
+        function deletePlan(planId) {
+            if (confirm('确定要删除该计划吗？此操作不可恢复。')) {
+                alert('计划已删除');
+            }
+        }
+    </script>
+</body>
+</html>

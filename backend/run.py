@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 开发环境启动脚本
-使用: python run.py
+用法: python run.py
 """
+
 import uvicorn
 
 if __name__ == "__main__":

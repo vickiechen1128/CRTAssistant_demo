@@ -1,110 +1,89 @@
-import { useState } from 'react';
-import { useItems } from './hooks/useItems';
-import { ItemForm } from './components/ItemForm';
-import { ItemList } from './components/ItemList';
-import { Message } from './components/Message';
-
 /**
  * 主应用组件
  */
+
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './stores';
+
+// 页面组件
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import TaskList from './pages/AdmissionTasks/List';
+import TaskDetail from './pages/AdmissionTasks/Detail';
+import CreateTask from './pages/AdmissionTasks/Create';
+import Inventories from './pages/Inventories';
+import ServerInventory from './pages/Inventories/ServerInventory';
+import CloudInventory from './pages/Inventories/CloudInventory';
+import AccountInventory from './pages/Inventories/AccountInventory';
+import ServerInventoryList from './pages/Inventories/ServerInventoryList';
+import CloudInventoryList from './pages/Inventories/CloudInventoryList';
+import AccountInventoryList from './pages/Inventories/AccountInventoryList';
+import VerificationScripts from './pages/Verification/Scripts';
+import VerificationRecords from './pages/Verification/Records';
+
+// 工作流管理页面
+import WorkflowList from './pages/Workflows/List';
+import WorkflowCreate from './pages/Workflows/Create';
+
+// 布局组件
+import MainLayout from './components/Layout/MainLayout';
+
 function App() {
-  const { 
-    items, 
-    loading, 
-    error, 
-    createItem, 
-    deleteItem, 
-    toggleStatus 
-  } = useItems();
-  
-  const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState('info');
+  const { isAuthenticated, user, fetchUser } = useAuthStore();
 
-  // 显示消息
-  const showMessage = (text, type = 'info') => {
-    setMessage(text);
-    setMessageType(type);
-  };
-
-  // 清除消息
-  const clearMessage = () => {
-    setMessage(null);
-  };
-
-  // 处理创建
-  const handleCreate = async (data) => {
-    try {
-      await createItem(data);
-      showMessage('Item 创建成功！', 'success');
-    } catch (err) {
-      showMessage(`创建失败: ${err.message}`, 'error');
+  // 初始化时获取用户信息（只执行一次）
+  useEffect(() => {
+    console.log('App初始化, isAuthenticated:', isAuthenticated, 'user:', user);
+    const token = localStorage.getItem('access_token');
+    console.log('本地token:', token ? '存在' : '不存在');
+    // 只有有token且没有user信息时才调用fetchUser
+    if (token && !user) {
+      console.log('调用fetchUser获取用户信息');
+      fetchUser();
     }
-  };
-
-  // 处理删除
-  const handleDelete = async (id) => {
-    if (!confirm('确定要删除这个 item 吗？')) return;
-    
-    try {
-      await deleteItem(id);
-      showMessage('Item 已删除', 'info');
-    } catch (err) {
-      showMessage(`删除失败: ${err.message}`, 'error');
-    }
-  };
-
-  // 处理状态切换
-  const handleToggle = async (id) => {
-    try {
-      await toggleStatus(id);
-      showMessage('状态已更新', 'success');
-    } catch (err) {
-      showMessage(`更新失败: ${err.message}`, 'error');
-    }
-  };
+  }, []); // 空依赖，只执行一次
 
   return (
-    <div className="container">
-      <header className="header">
-        <h1>🚀 CRTAssistant Demo</h1>
-        <p>基于 FastAPI + React 的轻量级应用脚手架</p>
-      </header>
-
-      <Message 
-        type={messageType} 
-        message={message || error} 
-        onClose={clearMessage}
-        duration={3000}
-      />
-
-      <ItemForm 
-        onSubmit={handleCreate} 
-        loading={loading} 
-      />
-
-      <section>
-        <h2 style={{ marginBottom: '1rem', fontSize: '1.125rem', color: 'var(--gray-700)' }}>
-          Item 列表 ({items.length})
-        </h2>
+    <BrowserRouter>
+      <Routes>
+        {/* 登录页 */}
+        <Route 
+          path="/login" 
+          element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+        />
         
-        {loading && items.length === 0 ? (
-          <div className="loading">加载中...</div>
-        ) : (
-          <ItemList 
-            items={items} 
-            onToggle={handleToggle}
-            onDelete={handleDelete}
-            loading={loading}
-          />
-        )}
-      </section>
+        {/* 需要登录的路由 */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/admission-tasks" element={<TaskList />} />
+          <Route path="/admission-tasks/new" element={<CreateTask />} />
+          <Route path="/admission-tasks/:id" element={<TaskDetail />} />
+          {/* 台账管理路由 */}
+          <Route path="/inventories/task/:taskId" element={<Inventories />} />
+          <Route path="/inventories/server" element={<ServerInventoryList />} />
+          <Route path="/inventories/cloud" element={<CloudInventoryList />} />
+          <Route path="/inventories/account" element={<AccountInventoryList />} />
+          <Route path="/inventories/:id" element={<ServerInventory />} />
+          <Route path="/inventories/:taskId/server/create" element={<ServerInventory />} />
+          <Route path="/inventories/:taskId/cloud_resource/create" element={<CloudInventory />} />
+          <Route path="/inventories/:taskId/account/create" element={<AccountInventory />} />
+          {/* 验证管理路由 */}
+          <Route path="/verification/scripts" element={<VerificationScripts />} />
+          <Route path="/verification/records" element={<VerificationRecords />} />
+          {/* 工作流管理路由 */}
+          <Route path="/workflows" element={<WorkflowList />} />
+          <Route path="/workflows/new" element={<WorkflowCreate />} />
+        </Route>
 
-      <footer style={{ marginTop: '3rem', textAlign: 'center', color: 'var(--gray-500)', fontSize: '0.75rem' }}>
-        <p>Backend: FastAPI + SQLite | Frontend: React + Vite</p>
-        <p style={{ marginTop: '0.25rem' }}>API Docs: <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noopener noreferrer">/docs</a></p>
-      </footer>
-    </div>
+        {/* 默认重定向 */}
+        <Route 
+          path="*" 
+          element={<Navigate to={isAuthenticated ? "/" : "/login"} />} 
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App
+export default App;

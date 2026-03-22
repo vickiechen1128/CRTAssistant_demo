@@ -2,6 +2,8 @@
 
 | 版本 | 日期 | 作者 | 变更说明 |
 |-----|------|-----|---------|
+| v0.3 | 2024-03-22 | CRT | 新增工作流管理模块，包含工作流设计器、进度跟踪、验收组件 |
+| v0.2 | 2024-03-22 | CRT | 更新：与前端实际路由对齐，修正页面结构 |
 | v0.1 | 2024-03-20 | CRT | 初稿，技术架构和模块设计 |
 
 ## 1. 技术选型
@@ -72,7 +74,10 @@ backend/
 │   │   ├── checklist.py
 │   │   ├── inventory.py
 │   │   ├── deliverable.py
-│   │   └── verification.py
+│   │   ├── verification.py
+│   │   ├── workflow.py      # 工作流模板
+│   │   ├── work_item.py     # 工作项定义
+│   │   └── workflow_instance.py  # 工作流实例
 │   ├── schemas/             # Pydantic数据模型
 │   │   ├── __init__.py
 │   │   ├── user.py
@@ -88,6 +93,9 @@ backend/
 │   │   ├── deliverables.py
 │   │   ├── verification_scripts.py
 │   │   ├── verification_execute.py
+│   │   ├── workflows.py     # 工作流管理
+│   │   ├── work_items.py    # 工作项管理
+│   │   ├── workflow_instances.py  # 工作流实例
 │   │   ├── dashboard.py
 │   │   └── templates.py
 │   ├── services/            # 业务逻辑层
@@ -125,56 +133,72 @@ backend/
 frontend/
 ├── src/
 │   ├── main.jsx             # 应用入口
-│   ├── App.jsx              # 根组件
-│   ├── routes.jsx           # 路由配置
-│   ├── api/                 # API客户端
-│   │   ├── index.js         # axios实例
-│   │   ├── auth.js
-│   │   ├── admissionTasks.js
-│   │   ├── checklist.js
-│   │   ├── inventories.js
-│   │   ├── deliverables.js
-│   │   ├── verification.js
-│   │   └── dashboard.js
+│   ├── App.jsx              # 根组件 - 路由配置
+│   │   ├── api/                 # API客户端
+│   │   │   ├── index.js         # axios实例
+│   │   │   ├── auth.js          # 认证API
+│   │   │   ├── tasks.js         # 准入任务API
+│   │   │   ├── checklist.js     # 检查项API
+│   │   │   ├── inventory.js     # 台账API
+│   │   │   ├── deliverable.js   # 交付物API
+│   │   │   ├── verification.js  # 验证API
+│   │   │   ├── workflow.js      # 工作流API
+│   │   │   └── dashboard.js     # 仪表盘API
 │   ├── stores/              # Zustand状态管理
 │   │   ├── authStore.js
 │   │   ├── taskStore.js
 │   │   └── uiStore.js
 │   ├── components/          # 公共组件
 │   │   ├── Layout/          # 布局组件
-│   │   │   ├── index.jsx
-│   │   │   ├── Header.jsx
-│   │   │   ├── Sidebar.jsx
-│   │   │   └── Breadcrumb.jsx
+│   │   │   └── MainLayout.jsx    # 主布局（含侧边栏菜单）
 │   │   ├── Common/          # 通用组件
 │   │   │   ├── StatusBadge.jsx
 │   │   │   ├── ProgressBar.jsx
 │   │   │   ├── DataTable.jsx
 │   │   │   ├── FileUploader.jsx
 │   │   │   └── SearchForm.jsx
-│   │   └── Business/        # 业务组件
-│   │       ├── TaskCard.jsx
-│   │       ├── ChecklistItemCard.jsx
-│   │       ├── InventoryForm/
-│   │       ├── VerificationExecutor/
-│   │       └── DeliverableList/
+│   │       ├── Business/        # 业务组件
+│   │       │   ├── TaskCard.jsx
+│   │       │   ├── ChecklistItemCard.jsx
+│   │       │   ├── InventoryForm/
+│   │       │   ├── VerificationExecutor/
+│   │       │   ├── DeliverableList/
+│   │       │   ├── Workflow/           # 工作流组件
+│   │       │   │   ├── WorkflowDesigner.jsx    # 工作流设计器
+│   │       │   │   ├── WorkflowProgress.jsx    # 工作流进度展示
+│   │       │   │   ├── WorkItemCard.jsx        # 工作项卡片
+│   │       │   │   ├── WorkItemList.jsx        # 工作项列表
+│   │       │   │   ├── AcceptanceCriteriaForm.jsx  # 验收标准表单
+│   │       │   │   └── WorkItemVerification.jsx    # 工作项验收
+│   │       │   └── Progress/           # 进度组件
+│   │       │       ├── ProgressRing.jsx        # 环形进度
+│   │       │       ├── ProgressTimeline.jsx    # 时间线进度
+│   │       │       └── CriticalPath.jsx        # 关键路径展示
 │   ├── pages/               # 页面组件
-│   │   ├── Login/
-│   │   ├── Dashboard/
-│   │   ├── AdmissionTasks/
-│   │   │   ├── List.jsx
-│   │   │   ├── Detail/
+│   │   ├── Login/           # 登录页
+│   │   ├── Dashboard/       # 仪表盘
+│   │   ├── AdmissionTasks/  # 准入任务
+│   │   │   ├── List.jsx     # 任务列表
+│   │   │   ├── Detail/      # 任务详情
 │   │   │   │   ├── index.jsx
 │   │   │   │   ├── Overview.jsx
 │   │   │   │   ├── Checklist.jsx
 │   │   │   │   ├── Inventories/
 │   │   │   │   ├── Verification/
 │   │   │   │   └── Deliverables.jsx
-│   │   │   └── Create.jsx
-│   │   ├── Templates/
-│   │   ├── Scripts/
-│   │   ├── Users/
-│   │   └── Profile/
+│   │   │   └── Create.jsx   # 创建任务
+│   │   ├── Inventories/     # 台账管理
+│   │   │   ├── index.jsx           # 任务内台账管理
+│   │   │   ├── ServerInventoryList.jsx   # 应用系统台账列表
+│   │   │   ├── CloudInventoryList.jsx    # 云服务台账列表
+│   │   │   ├── AccountInventoryList.jsx  # 系统账户台账列表
+│   │   │   ├── ServerInventory.jsx       # 应用系统台账编辑
+│   │   │   ├── CloudInventory.jsx        # 云服务台账编辑
+│   │   │   └── AccountInventory.jsx      # 系统账户台账编辑
+│   │   ├── Verification/    # 验证管理（待实现）
+│   │   │   ├── Scripts.jsx
+│   │   │   └── Records.jsx
+│   │   └── Settings/        # 系统设置（待实现）
 │   ├── hooks/               # 自定义Hooks
 │   │   ├── useAuth.js
 │   │   ├── useTasks.js
@@ -189,6 +213,68 @@ frontend/
 │       └── variables.css
 ├── public/
 └── package.json
+```
+
+### 2.3 前端路由设计
+
+#### 2.3.1 路由配置表（与实际代码对齐）
+
+| 路由路径 | 页面组件 | 说明 | 权限 |
+|---------|---------|------|------|
+| `/login` | Login | 登录页 | 公开 |
+| `/` | Dashboard | 仪表盘 | 需登录 |
+| `/admission-tasks` | TaskList | 准入任务列表 | 需登录 |
+| `/admission-tasks/new` | CreateTask | 创建准入任务 | 需登录 |
+| `/admission-tasks/:id` | TaskDetail | 任务详情（含Tab） | 需登录 |
+| `/inventories/task/:taskId` | Inventories | 任务内台账管理 | 需登录 |
+| `/inventories/server` | ServerInventoryList | 应用系统台账列表 | 需登录 |
+| `/inventories/cloud` | CloudInventoryList | 云服务台账列表 | 需登录 |
+| `/inventories/account` | AccountInventoryList | 系统账户台账列表 | 需登录 |
+| `/inventories/:id` | ServerInventory | 台账详情/编辑 | 需登录 |
+| `/inventories/:taskId/server/create` | ServerInventory | 创建应用系统台账 | 需登录 |
+| `/inventories/:taskId/cloud_resource/create` | CloudInventory | 创建云服务台账 | 需登录 |
+| `/inventories/:taskId/account/create` | AccountInventory | 创建系统账户台账 | 需登录 |
+| `/workflows` | WorkflowList | 工作流模板列表 | 需登录 |
+| `/workflows/new` | WorkflowCreate | 创建工作流模板 | 需登录 |
+| `/workflows/:id` | WorkflowDetail | 工作流模板详情 | 需登录 |
+| `/workflows/:id/edit` | WorkflowEdit | 编辑工作流模板 | 需登录 |
+| `/workflows/:id/instances` | WorkflowInstanceList | 工作流实例列表 | 需登录 |
+| `/workflow-instances/:id` | WorkflowInstanceDetail | 工作流实例详情 | 需登录 |
+| `/workflow-instances/:id/execute` | WorkItemExecute | 执行工作项 | 需登录 |
+
+#### 2.3.2 侧边栏菜单结构
+
+```javascript
+const menuItems = [
+  { key: '/', label: '仪表盘' },
+  { key: '/admission-tasks', label: '准入任务' },
+  {
+    key: 'workflows',
+    label: '工作流管理',
+    children: [
+      { key: '/workflows', label: '工作流模板' },
+      { key: '/workflow-instances', label: '工作流实例' },
+    ]
+  },
+  {
+    key: 'inventories',
+    label: '台账管理',
+    children: [
+      { key: '/inventories/server', label: '应用系统台账' },
+      { key: '/inventories/cloud', label: '云服务台账' },
+      { key: '/inventories/account', label: '系统账户台账' },
+    ]
+  },
+  {
+    key: 'verification',
+    label: '验证管理',
+    children: [
+      { key: '/verification/scripts', label: '验证脚本' },
+      { key: '/verification/records', label: '验证记录' },
+    ]
+  },
+  { key: '/settings', label: '系统设置' },
+];
 ```
 
 ## 3. 核心模块设计
@@ -266,7 +352,83 @@ flowchart LR
 - 病毒扫描：使用 `clamdscan` 或云扫描API
 - 存储路径：按日期分目录，避免单目录文件过多
 
-### 3.4 权限控制模型
+### 3.4 工作流管理模块
+
+```mermaid
+flowchart TD
+    A[运维专家创建工作流模板] --> B[定义工作项结构]
+    B --> C[配置验收标准]
+    C --> D[设置依赖关系]
+    D --> E[保存工作流模板]
+    E --> F[关联到准入任务]
+    F --> G[创建工作流实例]
+    G --> H[分配责任人]
+    H --> I[开始执行工作项]
+    I --> J{检查依赖}
+    J -->|依赖未完成| K[等待前置工作项]
+    J -->|依赖完成| L[执行工作项]
+    L --> M[更新进度]
+    M --> N[验收工作项]
+    N --> O{验收结果}
+    O -->|驳回| P[返回修改]
+    P --> L
+    O -->|通过| Q[标记完成]
+    Q --> R{是否全部完成}
+    R -->|否| S[激活后续工作项]
+    S --> I
+    R -->|是| T[工作流完成]
+```
+
+**工作流组件设计**:
+
+| 组件 | 文件路径 | 功能描述 |
+|-----|---------|---------|
+| WorkflowDesigner | `components/Business/Workflow/WorkflowDesigner.jsx` | 可视化工作流设计器，支持拖拽调整工作项顺序 |
+| WorkflowProgress | `components/Business/Workflow/WorkflowProgress.jsx` | 工作流整体进度展示，包含环形进度条和时间线 |
+| WorkItemCard | `components/Business/Workflow/WorkItemCard.jsx` | 单个工作项卡片，显示状态、进度、责任人 |
+| WorkItemList | `components/Business/Workflow/WorkItemList.jsx` | 工作项列表，支持排序和筛选 |
+| AcceptanceCriteriaForm | `components/Business/Workflow/AcceptanceCriteriaForm.jsx` | 验收标准表单，支持从模板导入或手动新增 |
+| WorkItemVerification | `components/Business/Workflow/WorkItemVerification.jsx` | 工作项验收界面，逐项确认验收标准 |
+| ProgressRing | `components/Progress/ProgressRing.jsx` | 环形进度组件，展示整体完成百分比 |
+| ProgressTimeline | `components/Progress/ProgressTimeline.jsx` | 时间线进度组件，展示各工作项执行时间 |
+| CriticalPath | `components/Progress/CriticalPath.jsx` | 关键路径高亮展示 |
+
+**页面组件设计**:
+
+| 页面 | 文件路径 | 功能描述 |
+|-----|---------|---------|
+| WorkflowList | `pages/Workflows/List.jsx` | 工作流模板列表页，支持搜索和筛选 |
+| WorkflowCreate | `pages/Workflows/Create.jsx` | 创建工作流模板页，使用WorkflowDesigner |
+| WorkflowDetail | `pages/Workflows/Detail.jsx` | 工作流模板详情页，展示工作项和验收标准 |
+| WorkflowEdit | `pages/Workflows/Edit.jsx` | 编辑工作流模板页 |
+| WorkflowInstanceList | `pages/WorkflowInstances/List.jsx` | 工作流实例列表页 |
+| WorkflowInstanceDetail | `pages/WorkflowInstances/Detail.jsx` | 工作流实例详情页，展示实时进度 |
+| WorkItemExecute | `pages/WorkflowInstances/Execute.jsx` | 工作项执行页面 |
+
+**状态管理**:
+```javascript
+// stores/workflowStore.js
+const useWorkflowStore = create((set, get) => ({
+  workflows: [],
+  currentWorkflow: null,
+  instances: [],
+  currentInstance: null,
+  progress: null,
+  
+  // Actions
+  fetchWorkflows: async (params) => {...},
+  createWorkflow: async (data) => {...},
+  updateWorkflow: async (id, data) => {...},
+  deleteWorkflow: async (id) => {...},
+  fetchInstances: async (workflowId) => {...},
+  createInstance: async (workflowId, taskId) => {...},
+  executeWorkItem: async (instanceId, workItemId) => {...},
+  verifyWorkItem: async (instanceId, workItemId, data) => {...},
+  fetchProgress: async (instanceId) => {...},
+}));
+```
+
+### 3.5 权限控制模型
 
 ```
 权限控制层次:
@@ -274,13 +436,15 @@ flowchart LR
 │   └── JWT Token验证
 ├── 角色层 (Role-Based)
 │   ├── ops_manager: 全部权限
+│   ├── ops_expert: 工作流模板管理
 │   ├── admin: 用户/模板管理
-│   ├── developer: 台账/交付物
+│   ├── developer: 台账/交付物/执行工作项
 │   ├── security: 安全审核
 │   └── viewer: 只读
 └── 数据层 (Data-Level)
     ├── 运维经理: 全部任务
-    ├── 开发人员: 被分配的任务
+    ├── 运维专家: 工作流模板管理
+    ├── 开发人员: 被分配的任务和工作项
     └── 安全人员: 安全相关检查项
 ```
 
@@ -398,124 +562,57 @@ uploads/
 - Refresh Token: 7天有效期，用于获取新的Access Token
 ```
 
-### 6.2 接口限流
+### 6.2 密码安全
 
 ```python
-# 限流策略
-- 登录接口: 5次/分钟
-- 通用接口: 100次/分钟
-- 文件上传: 10次/分钟
-- 脚本执行: 10次/分钟
+# 使用 bcrypt 直接进行密码哈希（替代 passlib）
+import bcrypt
+
+def hash_password(password: str) -> str:
+    # bcrypt 限制密码最长72字节，超长需要截断
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    return bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    password_bytes = plain_password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    return bcrypt.checkpw(password_bytes, hashed_password.encode('utf-8'))
 ```
 
-### 6.3 敏感数据处理
+## 7. 已知问题与解决方案
 
-- 密码: bcrypt哈希存储
-- SSH密钥: AES加密存储
-- 账户密码: 数据库中不存储，台账中记录密码修改日期
+### 7.1 路由冲突问题
 
-## 7. 开发计划
+**问题**: 动态路由 `/:id` 与静态路由 `/new` 冲突，导致访问 `/new` 时被解析为 `id="new"`
 
-### Phase 1: 基础架构 (Week 1-2)
+**解决方案**: 在路由配置中，将静态路由放在动态路由之前
 
-| 任务 | 负责人 | 工期 | 产出 |
-|-----|-------|-----|------|
-| 后端项目搭建 | - | 2天 | FastAPI项目框架 |
-| 数据库模型设计 | - | 2天 | SQLAlchemy模型 |
-| 前端项目搭建 | - | 2天 | React+Vite项目框架 |
-| 基础组件开发 | - | 3天 | Layout、Table、Form组件 |
-| 登录认证模块 | - | 2天 | JWT登录、权限控制 |
-
-### Phase 2: 核心功能 (Week 3-5)
-
-| 任务 | 负责人 | 工期 | 产出 |
-|-----|-------|-----|------|
-| 准入任务管理 | - | 3天 | 任务CRUD、进度跟踪 |
-| 检查清单模块 | - | 3天 | 检查项管理、确认流程 |
-| 台账管理 | - | 4天 | 三类台账录入、导入导出 |
-| 交付物管理 | - | 2天 | 文件上传下载、预览 |
-| 验证脚本执行 | - | 4天 | SSH执行、结果解析、展示 |
-
-### Phase 3: 完善优化 (Week 6-7)
-
-| 任务 | 负责人 | 工期 | 产出 |
-|-----|-------|-----|------|
-| 仪表盘 | - | 2天 | 统计图表、待办提醒 |
-| 模板管理 | - | 2天 | 检查清单模板CRUD |
-| 用户管理 | - | 2天 | 用户CRUD、角色分配 |
-| 测试优化 | - | 3天 | 单元测试、性能优化 |
-| 部署文档 | - | 2天 | 部署手册、使用文档 |
-
-### Phase 4: 后续迭代 (待定)
-
-- 系统安全检查模块
-- 监控告警配置模块
-- 准入报告生成
-- 通知中心（邮件/钉钉/企业微信）
-- 工作流引擎（审批流程）
-
-## 8. 风险与应对
-
-| 风险 | 可能性 | 影响 | 应对措施 |
-|-----|-------|-----|---------|
-| SSH执行安全风险 | 中 | 高 | 使用只读账户，脚本审核，操作审计 |
-| 文件上传安全 | 中 | 高 | 类型白名单、大小限制、病毒扫描 |
-| 脚本执行超时 | 高 | 中 | 设置超时机制，异步执行，可取消 |
-| 并发性能问题 | 中 | 中 | 任务队列限流，结果缓存 |
-| 数据丢失 | 低 | 高 | 定期备份，操作日志，软删除 |
-
-## 9. 部署方案
-
-### 9.1 单机部署
-
-```bash
-# 1. 克隆代码
-git clone <repo>
-cd ops-manager
-
-# 2. 后端部署
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-alembic upgrade head
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-
-# 3. 前端部署
-cd frontend
-npm install
-npm run build
-
-# 4. Nginx配置
-# 将构建产物复制到Nginx目录，配置反向代理
+```jsx
+<Route path="/admission-tasks/new" element={<CreateTask />} />
+<Route path="/admission-tasks/:id" element={<TaskDetail />} />
 ```
 
-### 9.2 Docker部署
+### 7.2 API 422 错误
 
-```yaml
-# docker-compose.yml
-version: '3'
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./uploads:/app/uploads
-      - ./data:/app/data
-  frontend:
-    build: ./frontend
-    ports:
-      - "80:80"
-  redis:
-    image: redis:alpine
+**问题**: 访问 `/api/inventories/server` 返回 422 Unprocessable Content
+
+**原因**: 后端路由参数定义与前端调用方式不匹配
+
+**解决方案**: 
+- 后端使用查询参数 `?inventory_type=server` 而非路径参数
+- 前端 API 调用方式：`apiClient.get('/inventories', { params: { inventory_type: type } })`
+
+### 7.3 密码长度限制
+
+**问题**: bcrypt 限制密码最长72字节
+
+**解决方案**: 在哈希前截断超长密码
+
+```python
+password_bytes = password.encode('utf-8')
+if len(password_bytes) > 72:
+    password_bytes = password_bytes[:72]
 ```
-
-### 9.3 系统要求
-
-- **CPU**: 2核+
-- **内存**: 4GB+
-- **磁盘**: 20GB+（根据文件存储需求调整）
-- **操作系统**: Linux (CentOS 7+/Ubuntu 18.04+)
-- **Python**: 3.9+
-- **Node.js**: 18+

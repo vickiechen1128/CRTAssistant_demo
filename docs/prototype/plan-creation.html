@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建计划 - 仿真运维经理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .back-btn:hover {
+            color: #1890ff;
+        }
+        
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #262626;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .btn-default {
+            background: #fff;
+            border-color: #d9d9d9;
+            color: #595959;
+        }
+        
+        .btn-default:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            margin-top: 64px;
+            padding: 24px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* 步骤条 */
+        .steps-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px 40px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 60px;
+            right: 60px;
+            height: 2px;
+            background: #e8e8e8;
+            z-index: 0;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            background: #fff;
+            border: 2px solid #e8e8e8;
+            color: #999;
+        }
+        
+        .step.active .step-number {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+        
+        .step.completed .step-number {
+            background: #52c41a;
+            border-color: #52c41a;
+            color: #fff;
+        }
+        
+        .step-title {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .step.active .step-title {
+            color: #1890ff;
+            font-weight: 500;
+        }
+        
+        .step.completed .step-title {
+            color: #52c41a;
+        }
+        
+        /* 表单卡片 */
+        .form-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-section-icon {
+            width: 24px;
+            height: 24px;
+            background: #e6f7ff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+        
+        .form-label .required {
+            color: #ff4d4f;
+            margin-left: 4px;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-hint {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+        
+        /* 优先级选择 */
+        .priority-selector {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .priority-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .priority-option:hover {
+            border-color: #d9d9d9;
+        }
+        
+        .priority-option.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .priority-p0 { background: #fff1f0; color: #cf1322; }
+        .priority-p1 { background: #fff7e6; color: #d46b08; }
+        .priority-p2 { background: #e6fffb; color: #08979c; }
+        .priority-p3 { background: #f6ffed; color: #389e0d; }
+        
+        .priority-label {
+            font-size: 14px;
+            color: #262626;
+            font-weight: 500;
+        }
+        
+        .priority-desc {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+        
+        /* 分类选择 */
+        .category-selector {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .category-option {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-option:hover {
+            border-color: #d9d9d9;
+        }
+        
+        .category-option.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .category-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .category-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 4px;
+        }
+        
+        .category-desc {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+        
+        /* 系统选择 */
+        .system-selector {
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            padding: 12px;
+        }
+        
+        .system-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .system-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f0f5ff;
+            border: 1px solid #d6e4ff;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1d39c4;
+        }
+        
+        .system-tag-remove {
+            cursor: pointer;
+            color: #1d39c4;
+            font-weight: bold;
+        }
+        
+        .system-tag-remove:hover {
+            color: #ff4d4f;
+        }
+        
+        .system-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .system-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .system-add-btn {
+            padding: 8px 16px;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .system-add-btn:hover {
+            background: #40a9ff;
+        }
+        
+        /* 时间选择 */
+        .datetime-picker {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .datetime-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        /* 文件上传 */
+        .upload-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #1890ff;
+            background: #f0f5ff;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #bfbfbf;
+            margin-bottom: 16px;
+        }
+        
+        .upload-text {
+            font-size: 16px;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+        
+        .file-list {
+            margin-top: 16px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .file-icon {
+            font-size: 24px;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-size: 14px;
+            color: #262626;
+            margin-bottom: 2px;
+        }
+        
+        .file-size {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+        
+        .file-remove {
+            color: #8c8c8c;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .file-remove:hover {
+            color: #ff4d4f;
+        }
+        
+        /* 工作流选择 */
+        .workflow-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .workflow-option {
+            padding: 20px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .workflow-option:hover {
+            border-color: #d9d9d9;
+        }
+        
+        .workflow-option.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .workflow-option.recommended {
+            position: relative;
+        }
+        
+        .workflow-option.recommended::after {
+            content: '推荐';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 2px 8px;
+            background: #1890ff;
+            color: #fff;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+        
+        .workflow-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+        
+        .workflow-desc {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-bottom: 12px;
+        }
+        
+        .workflow-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+        
+        .workflow-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* 标签预览 */
+        .tag-preview {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+        
+        .tag-preview-title {
+            font-size: 14px;
+            color: #52c41a;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tag-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .tag-label {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+        
+        .tag-value {
+            padding: 8px 16px;
+            background: #fff;
+            border: 1px dashed #52c41a;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #52c41a;
+        }
+        
+        .tag-desc {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 12px;
+        }
+        
+        /* 底部操作栏 */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 24px 0;
+        }
+        
+        .btn-large {
+            padding: 12px 32px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-left">
+            <a href="plan-management.html" class="back-btn">
+                <span>←</span>
+                <span>返回计划管理</span>
+            </a>
+            <h1 class="page-title">创建上线计划</h1>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-default">保存草稿</button>
+            <button class="btn btn-primary" onclick="submitPlan()">创建计划</button>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 步骤条 -->
+        <div class="steps-container">
+            <div class="steps">
+                <div class="step completed">
+                    <div class="step-number">✓</div>
+                    <div class="step-title">基本信息</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <div class="step-title">审批材料</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">关联工作流</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">确认创建</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤1: 基本信息 -->
+        <div class="form-card" id="step1">
+            <div class="form-section-title">
+                <div class="form-section-icon">📋</div>
+                计划基本信息
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">计划分类 <span class="required">*</span></label>
+                    <div class="category-selector">
+                        <div class="category-option selected" onclick="selectCategory(this, 'STANDARD')">
+                            <div class="category-icon">🚀</div>
+                            <div class="category-name">标准上线</div>
+                            <div class="category-desc">常规业务系统上线流程</div>
+                        </div>
+                        <div class="category-option" onclick="selectCategory(this, 'BUSINESS')">
+                            <div class="category-icon">📊</div>
+                            <div class="category-name">业务需求</div>
+                            <div class="category-desc">业务驱动的变更需求</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">计划名称 <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="请输入计划名称，如：订单系统V2.0上线" id="planName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">计划编号</label>
+                    <input type="text" class="form-input" value="系统自动生成" disabled style="background: #f5f5f5;">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label class="form-label">优先级 <span class="required">*</span></label>
+                    <div class="priority-selector">
+                        <div class="priority-option" onclick="selectPriority(this, 'P0')">
+                            <span class="priority-badge priority-p0">P0</span>
+                            <div class="priority-label">紧急</div>
+                            <div class="priority-desc">影响生产环境的紧急变更</div>
+                        </div>
+                        <div class="priority-option selected" onclick="selectPriority(this, 'P1')">
+                            <span class="priority-badge priority-p1">P1</span>
+                            <div class="priority-label">高</div>
+                            <div class="priority-desc">重要业务系统上线</div>
+                        </div>
+                        <div class="priority-option" onclick="selectPriority(this, 'P2')">
+                            <span class="priority-badge priority-p2">P2</span>
+                            <div class="priority-label">中</div>
+                            <div class="priority-desc">常规业务变更</div>
+                        </div>
+                        <div class="priority-option" onclick="selectPriority(this, 'P3')">
+                            <span class="priority-badge priority-p3">P3</span>
+                            <div class="priority-label">低</div>
+                            <div class="priority-desc">非紧急变更、优化类</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">计划执行时间 <span class="required">*</span></label>
+                    <div class="datetime-picker">
+                        <input type="datetime-local" class="datetime-input" id="startTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">计划结束时间（预估）</label>
+                    <div class="datetime-picker">
+                        <input type="datetime-local" class="datetime-input" id="endTime">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label class="form-label">涉及的应用系统 <span class="required">*</span></label>
+                    <div class="system-selector">
+                        <div class="system-tags" id="systemTags">
+                            <span class="system-tag">
+                                订单系统
+                                <span class="system-tag-remove" onclick="removeSystem(this)">×</span>
+                            </span>
+                            <span class="system-tag">
+                                支付系统
+                                <span class="system-tag-remove" onclick="removeSystem(this)">×</span>
+                            </span>
+                        </div>
+                        <div class="system-input-wrapper">
+                            <input type="text" class="system-input" placeholder="输入系统名称，按回车添加" id="systemInput" onkeypress="handleSystemInput(event)">
+                            <button class="system-add-btn" onclick="addSystem()">添加</button>
+                        </div>
+                    </div>
+                    <div class="form-hint">这些系统将自动关联到计划的核验范围</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label class="form-label">计划说明</label>
+                    <textarea class="form-textarea" placeholder="请描述本次上线的背景、目标、影响范围等" id="planDescription"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤2: 审批材料 -->
+        <div class="form-card" id="step2">
+            <div class="form-section-title">
+                <div class="form-section-icon">📎</div>
+                审批材料上传
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label class="form-label">会议纪要 <span class="required">*</span></label>
+                    <div class="upload-area" onclick="document.getElementById('meetingFile').click()">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">点击或拖拽上传会议纪要</div>
+                        <div class="upload-hint">支持 PDF、Word、图片格式，单个文件不超过 20MB</div>
+                    </div>
+                    <input type="file" id="meetingFile" style="display: none;" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                    <div class="file-list" id="meetingFileList">
+                        <div class="file-item">
+                            <span class="file-icon">📄</span>
+                            <div class="file-info">
+                                <div class="file-name">订单系统V2.0上线评审会议纪要.pdf</div>
+                                <div class="file-size">2.4 MB</div>
+                            </div>
+                            <span class="file-remove" onclick="removeFile(this)">×</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label class="form-label">审批邮件/截图 <span class="required">*</span></label>
+                    <div class="upload-area" onclick="document.getElementById('emailFile').click()">
+                        <div class="upload-icon">📧</div>
+                        <div class="upload-text">点击或拖拽上传审批邮件或截图</div>
+                        <div class="upload-hint">支持 PDF、图片格式，单个文件不超过 20MB</div>
+                    </div>
+                    <input type="file" id="emailFile" style="display: none;" accept=".pdf,.png,.jpg,.jpeg">
+                    <div class="file-list" id="emailFileList">
+                        <div class="file-item">
+                            <span class="file-icon">🖼️</span>
+                            <div class="file-info">
+                                <div class="file-name">上线审批邮件截图.png</div>
+                                <div class="file-size">856 KB</div>
+                            </div>
+                            <span class="file-remove" onclick="removeFile(this)">×</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label class="form-label">其他材料（可选）</label>
+                    <div class="upload-area" onclick="document.getElementById('otherFile').click()">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">点击或拖拽上传其他补充材料</div>
+                        <div class="upload-hint">支持任意格式，单个文件不超过 20MB</div>
+                    </div>
+                    <input type="file" id="otherFile" style="display: none;">
+                    <div class="file-list" id="otherFileList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤3: 关联工作流 -->
+        <div class="form-card" id="step3">
+            <div class="form-section-title">
+                <div class="form-section-icon">⚙️</div>
+                关联工作流
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label class="form-label">选择工作流 <span class="required">*</span></label>
+                    <div class="workflow-selector">
+                        <div class="workflow-option recommended selected" onclick="selectWorkflow(this)">
+                            <div class="workflow-name">标准上线检查流程</div>
+                            <div class="workflow-desc">适用于一般业务系统上线前检查，包含5大核验任务</div>
+                            <div class="workflow-meta">
+                                <span>📋 5个工作项</span>
+                                <span>⏱️ 预估4小时</span>
+                                <span>✅ 已发布</span>
+                            </div>
+                        </div>
+                        <div class="workflow-option" onclick="selectWorkflow(this)">
+                            <div class="workflow-name">业务变更检查流程</div>
+                            <div class="workflow-desc">适用于业务需求驱动的变更，简化检查项</div>
+                            <div class="workflow-meta">
+                                <span>📋 3个工作项</span>
+                                <span>⏱️ 预估2小时</span>
+                                <span>✅ 已发布</span>
+                            </div>
+                        </div>
+                        <div class="workflow-option" onclick="selectWorkflow(this)">
+                            <div class="workflow-name">紧急上线快速流程</div>
+                            <div class="workflow-desc">适用于P0级紧急变更，核心检查项优先</div>
+                            <div class="workflow-meta">
+                                <span>📋 3个工作项</span>
+                                <span>⏱️ 预估1小时</span>
+                                <span>✅ 已发布</span>
+                            </div>
+                        </div>
+                        <div class="workflow-option" onclick="selectWorkflow(this)">
+                            <div class="workflow-name">自定义工作流...</div>
+                            <div class="workflow-desc">基于现有工作流创建自定义版本</div>
+                            <div class="workflow-meta">
+                                <span>📝 新建工作流</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签预览 -->
+            <div class="tag-preview">
+                <div class="tag-preview-title">
+                    <span>🏷️</span>
+                    <span>系统将自动生成数据标签</span>
+                </div>
+                <div class="tag-content">
+                    <span class="tag-label">计划标签：</span>
+                    <span class="tag-value" id="planTag">PLAN-20240322-001-STD-1711072800</span>
+                </div>
+                <div class="tag-desc">
+                    此标签将自动关联到涉及系统的所有资源（服务器、账户、数据库等），用于界定核验范围
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部操作 -->
+        <div class="form-actions">
+            <button class="btn btn-default btn-large" onclick="saveDraft()">保存草稿</button>
+            <button class="btn btn-primary btn-large" onclick="submitPlan()">创建计划</button>
+        </div>
+    </main>
+
+    <script>
+        // 选择分类
+        function selectCategory(element, category) {
+            document.querySelectorAll('.category-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // 选择优先级
+        function selectPriority(element, priority) {
+            document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // 选择工作流
+        function selectWorkflow(element) {
+            document.querySelectorAll('.workflow-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // 添加系统
+        function addSystem() {
+            const input = document.getElementById('systemInput');
+            const value = input.value.trim();
+            if (value) {
+                const tagsContainer = document.getElementById('systemTags');
+                const tag = document.createElement('span');
+                tag.className = 'system-tag';
+                tag.innerHTML = `${value}<span class="system-tag-remove" onclick="removeSystem(this)">×</span>`;
+                tagsContainer.appendChild(tag);
+                input.value = '';
+            }
+        }
+
+        // 处理系统输入
+        function handleSystemInput(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addSystem();
+            }
+        }
+
+        // 移除系统
+        function removeSystem(element) {
+            element.parentElement.remove();
+        }
+
+        // 移除文件
+        function removeFile(element) {
+            element.parentElement.remove();
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            alert('计划已保存为草稿');
+        }
+
+        // 提交计划
+        function submitPlan() {
+            const planName = document.getElementById('planName').value;
+            if (!planName) {
+                alert('请填写计划名称');
+                return;
+            }
+            alert('计划创建成功！\n\n计划编号：PLAN-20240322-001\n数据标签：PLAN-20240322-001-STD-1711072800\n\n系统将自动为关联资源打上标签。');
+            window.location.href = 'plan-management.html';
+        }
+
+        // 文件上传处理
+        document.getElementById('meetingFile').addEventListener('change', function(e) {
+            handleFileUpload(e, 'meetingFileList');
+        });
+
+        document.getElementById('emailFile').addEventListener('change', function(e) {
+            handleFileUpload(e, 'emailFileList');
+        });
+
+        document.getElementById('otherFile').addEventListener('change', function(e) {
+            handleFileUpload(e, 'otherFileList');
+        });
+
+        function handleFileUpload(event, listId) {
+            const file = event.target.files[0];
+            if (file) {
+                const list = document.getElementById(listId);
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span class="file-icon">📄</span>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                    </div>
+                    <span class="file-remove" onclick="removeFile(this)">×</span>
+                `;
+                list.appendChild(fileItem);
+            }
+        }
+    </script>
+</body>
+</html>

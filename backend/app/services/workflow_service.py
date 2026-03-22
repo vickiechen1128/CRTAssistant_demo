@@ -11,7 +11,8 @@ from sqlalchemy import func
 from app.models.workflow import (
     Workflow, WorkItem, WorkItemDependency, AcceptanceCriteria,
     WorkflowInstance, WorkItemInstance, AcceptanceCriteriaResult,
-    WorkflowStatus, WorkItemStatus, WorkflowInstanceStatus, CriteriaStatus
+    WorkflowStatus, WorkItemStatus, WorkflowInstanceStatus, CriteriaStatus,
+    WorkItemType, CriteriaType
 )
 from app.schemas.workflow import (
     WorkflowCreate, WorkflowUpdate, WorkItemCreate, WorkItemUpdate,
@@ -43,11 +44,14 @@ class WorkflowService:
         # 创建工作项
         work_item_map = {}  # 用于处理依赖关系
         for item_data in data.work_items:
+            # 将字符串转换为 Enum
+            work_item_type_enum = WorkItemType(item_data.work_item_type) if isinstance(item_data.work_item_type, str) else item_data.work_item_type
+            
             work_item = WorkItem(
                 workflow_id=workflow.id,
                 name=item_data.name,
                 description=item_data.description,
-                work_item_type=item_data.work_item_type,
+                work_item_type=work_item_type_enum,
                 display_order=item_data.display_order,
                 estimated_duration=item_data.estimated_duration,
                 is_required=item_data.is_required
@@ -58,11 +62,14 @@ class WorkflowService:
 
             # 创建验收标准
             for criteria_data in item_data.acceptance_criteria:
+                # 将字符串转换为 Enum
+                criteria_type_enum = CriteriaType(criteria_data.criteria_type) if isinstance(criteria_data.criteria_type, str) else criteria_data.criteria_type
+                
                 criteria = AcceptanceCriteria(
                     work_item_id=work_item.id,
                     content=criteria_data.content,
                     is_required=criteria_data.is_required,
-                    criteria_type=criteria_data.criteria_type,
+                    criteria_type=criteria_type_enum,
                     auto_check_script=criteria_data.auto_check_script,
                     display_order=criteria_data.display_order
                 )

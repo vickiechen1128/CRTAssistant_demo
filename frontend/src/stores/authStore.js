@@ -69,6 +69,8 @@ export const useAuthStore = create(
         } catch (error) {
           // Token无效，清除登录状态
           console.log('fetchUser error:', error);
+          // 清除 persist 存储的状态
+          localStorage.removeItem('auth-storage');
           get().logout();
         }
       },

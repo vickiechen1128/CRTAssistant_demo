@@ -1,0 +1,3016 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作流管理 - 仿真运维经理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1890ff;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-item {
+            padding: 8px 16px;
+            color: #595959;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #262626;
+        }
+        
+        .nav-item.active {
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1890ff;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* 主内容区 */
+        .main-container {
+            margin-top: 64px;
+            padding: 24px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* 页面标题 */
+        .page-header {
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .page-desc {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* 操作栏 */
+        .action-bar {
+            background: #fff;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            width: 280px;
+            font-size: 14px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+            color: #fff;
+        }
+        
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+            border-color: #52c41a;
+        }
+        
+        .btn-success:hover {
+            background: #73d13d;
+            border-color: #73d13d;
+        }
+        
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+            border-color: #ff4d4f;
+        }
+        
+        .btn-danger:hover {
+            background: #ff7875;
+            border-color: #ff7875;
+        }
+        
+        /* 工作流列表 */
+        .workflow-list {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .workflow-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .workflow-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .workflow-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .workflow-version {
+            font-size: 12px;
+            color: #999;
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .workflow-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        .workflow-meta {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .workflow-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .status-draft {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        
+        .status-archived {
+            background: #f5f5f5;
+            color: #999;
+            border: 1px solid #d9d9d9;
+        }
+        
+        .preset-badge {
+            background: #e6f7ff;
+            color: #1890ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        
+        .modal-close:hover {
+            color: #666;
+        }
+        
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-label .required {
+            color: #ff4d4f;
+            margin-left: 4px;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        /* 工作项列表 */
+        .work-items-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e8e8e8;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .work-item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .work-item-card {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .work-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .work-item-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .work-item-type {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .work-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            padding: 4px 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .icon-btn:hover {
+            color: #1890ff;
+        }
+        
+        /* 验收标准 */
+        .criteria-list {
+            margin-top: 12px;
+            padding-left: 20px;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px;
+            font-size: 13px;
+            color: #666;
+            border-bottom: 1px dashed #e8e8e8;
+            background: #fff;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .criteria-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .criteria-content {
+            flex: 1;
+        }
+        
+        .criteria-detail {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .criteria-type {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            background: #f5f5f5;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .criteria-type.script {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .criteria-type.ai {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .criteria-type.manual {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+        
+        /* 添加工作项按钮 */
+        .add-work-item-btn {
+            width: 100%;
+            padding: 16px;
+            border: 2px dashed #d9d9d9;
+            border-radius: 8px;
+            background: #fafafa;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-top: 12px;
+        }
+        
+        .add-work-item-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        /* 工作项类型选择 */
+        .work-item-types {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .work-item-type-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .work-item-type-card:hover {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .work-item-type-card.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+        
+        .type-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .type-card-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .type-card-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .type-card-badge.preset {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .type-card-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .type-card-standards {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        /* 步骤指示器 */
+        .steps {
+            display: flex;
+            margin-bottom: 24px;
+            padding: 0 24px;
+        }
+        
+        .step {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e8e8e8;
+            margin: 0 12px;
+        }
+        
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .step.active .step-number {
+            background: #1890ff;
+            color: #fff;
+        }
+        
+        .step.completed .step-number {
+            background: #52c41a;
+            color: #fff;
+        }
+        
+        .step-title {
+            margin-left: 8px;
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .step.active .step-title {
+            color: #1890ff;
+            font-weight: 500;
+        }
+        
+        .step.completed .step-title {
+            color: #52c41a;
+        }
+        
+        /* 脚本配置区域 */
+        .script-config {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        
+        .script-config-title {
+            font-weight: 600;
+            color: #52c41a;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .script-config-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        /* 交付物要求 */
+        .deliverable-requirement {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        
+        .deliverable-title {
+            font-weight: 600;
+            color: #1890ff;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .deliverable-list {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .deliverable-list li {
+            margin-bottom: 4px;
+            margin-left: 16px;
+        }
+        
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        
+        .tag-script {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .tag-ai {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .tag-manual {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+        
+        .tag-excel {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .tag-pdf {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+        
+        .tag-script-file {
+            background: #f9f0ff;
+            color: #722ed1;
+        }
+
+        /* 验收标准详情展开 */
+        .criteria-detail-section {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .criteria-detail-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .criteria-detail-table {
+            width: 100%;
+            font-size: 12px;
+            border-collapse: collapse;
+        }
+
+        .criteria-detail-table th,
+        .criteria-detail-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .criteria-detail-table th {
+            background: #fafafa;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 展开/收起按钮 */
+        .expand-btn {
+            font-size: 12px;
+            color: #1890ff;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px 0;
+        }
+
+        .expand-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* 字段标签 */
+        .field-tag {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            background: #f5f5f5;
+            color: #666;
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* 验收标准配置面板 */
+        .criteria-config-panel {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .criteria-config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .criteria-config-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .criteria-subtype {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .criteria-subtype-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .criteria-subtype-title {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .criteria-subtype-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .criteria-subtype-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .criteria-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        /* 脚本验证配置 */
+        .script-verification-config {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .script-verification-title {
+            font-weight: 600;
+            color: #52c41a;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .script-verification-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+            padding: 4px 0;
+        }
+
+        /* AI分析配置 */
+        .ai-analysis-config {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .ai-analysis-title {
+            font-weight: 600;
+            color: #1890ff;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .ai-analysis-steps {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ai-analysis-steps li {
+            margin-bottom: 4px;
+            margin-left: 16px;
+        }
+
+        /* 验证方式选择器 */
+        .verification-method-selector {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .verification-method-option {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .verification-method-option:hover {
+            border-color: #1890ff;
+        }
+
+        .verification-method-option.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .verification-method-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .verification-method-name {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .verification-method-desc {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* 验收标准编辑表单 */
+        .criteria-edit-form {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .criteria-edit-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .criteria-edit-col {
+            flex: 1;
+        }
+
+        .criteria-edit-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .criteria-edit-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .criteria-edit-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        /* 交付物类型选择 */
+        .deliverable-type-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .deliverable-type-option {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .deliverable-type-option:hover {
+            border-color: #1890ff;
+        }
+
+        .deliverable-type-option.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 知识库关联功能样式 */
+        .knowledge-source-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .knowledge-source-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .knowledge-source-option:hover {
+            border-color: #1890ff;
+            background: #f0f7ff;
+        }
+
+        .knowledge-source-option.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .knowledge-source-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .knowledge-source-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .knowledge-source-desc {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 知识库选择面板 */
+        .knowledge-panel {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .knowledge-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .knowledge-panel-title {
+            font-weight: 600;
+            color: #52c41a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .knowledge-search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .knowledge-search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .knowledge-category-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .knowledge-category-tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            transition: all 0.3s;
+        }
+
+        .knowledge-category-tag:hover,
+        .knowledge-category-tag.active {
+            background: #52c41a;
+            color: #fff;
+            border-color: #52c41a;
+        }
+
+        .knowledge-item-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .knowledge-item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .knowledge-item-row:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .knowledge-item-row.selected {
+            border: 2px solid #52c41a;
+            background: #f6ffed;
+        }
+
+        .knowledge-item-checkbox {
+            width: 18px;
+            height: 18px;
+        }
+
+        .knowledge-item-info {
+            flex: 1;
+        }
+
+        .knowledge-item-title {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .knowledge-item-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .knowledge-item-match-score {
+            font-size: 18px;
+            font-weight: 600;
+            color: #52c41a;
+        }
+
+        /* 智能匹配推荐 */
+        .smart-match-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .smart-match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .smart-match-title {
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .smart-match-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .smart-match-list {
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .smart-match-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .smart-match-item:last-child {
+            border-bottom: none;
+        }
+
+        .smart-match-item-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .smart-match-item-score {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .smart-match-item-btn {
+            padding: 4px 12px;
+            background: #fff;
+            color: #667eea;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* 文档导入区域 */
+        .document-import-area {
+            border: 2px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s;
+        }
+
+        .document-import-area:hover {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .document-import-area.dragover {
+            border-color: #52c41a;
+            background: #f6ffed;
+        }
+
+        .document-import-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .document-import-text {
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .document-import-formats {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 已导入文档列表 */
+        .imported-documents {
+            margin-top: 16px;
+        }
+
+        .imported-doc-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .imported-doc-icon {
+            font-size: 24px;
+        }
+
+        .imported-doc-info {
+            flex: 1;
+        }
+
+        .imported-doc-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .imported-doc-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .imported-doc-status {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .imported-doc-status.success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .imported-doc-status.processing {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 生成的验收标准预览 */
+        .generated-criteria-preview {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .generated-criteria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .generated-criteria-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .generated-criteria-count {
+            background: #1890ff;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .generated-criteria-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .generated-criteria-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .generated-criteria-checkbox {
+            margin-top: 2px;
+        }
+
+        .generated-criteria-content {
+            flex: 1;
+        }
+
+        .generated-criteria-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .generated-criteria-source {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .generated-criteria-confidence {
+            font-size: 12px;
+            color: #52c41a;
+            font-weight: 500;
+        }
+
+        /* 手动输入表单 */
+        .manual-input-form {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .manual-input-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .manual-input-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .manual-input-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .manual-input-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        /* 验收标准来源标签 */
+        .criteria-source-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        .criteria-source-tag.knowledge {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .criteria-source-tag.manual {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .criteria-source-tag.import {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        /* 关联知识库按钮 */
+        .link-knowledge-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 4px;
+            color: #52c41a;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .link-knowledge-btn:hover {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        /* 知识库模态框 */
+        .knowledge-modal-body {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 20px;
+            height: 500px;
+        }
+
+        .knowledge-modal-sidebar {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .knowledge-modal-content {
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">🔧 仿真运维经理</div>
+            <nav class="nav-menu">
+                <a href="plan-management.html" class="nav-item">计划管理</a>
+                <a href="workflow-management.html" class="nav-item active">工作流</a>
+                <a href="knowledge-base.html" class="nav-item">知识库</a>
+                <a href="#" class="nav-item">台账管理</a>
+                <a href="#" class="nav-item">报告分析</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <span>运维经理</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">工作流管理</h1>
+            <p class="page-desc">创建和管理上线前检查工作流模板，定义检查项和验收标准。支持脚本自动化验证、AI报告分析、人工核验三种验证方式。</p>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="搜索工作流名称...">
+                <button class="btn">🔍 搜索</button>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateModal()">+ 创建工作流</button>
+        </div>
+
+        <!-- 工作流列表 -->
+        <div class="workflow-list">
+            <!-- 预置模板：标准上线检查流程 -->
+            <div class="workflow-card" onclick="openEditModal('wf-001')">
+                <div class="workflow-header">
+                    <div>
+                        <div class="workflow-title">
+                            标准上线检查流程
+                            <span class="preset-badge">系统预置</span>
+                        </div>
+                        <span class="workflow-version">v1.0</span>
+                    </div>
+                    <span class="status-tag status-active">已发布</span>
+                </div>
+                <div class="workflow-desc">
+                    适用于一般业务系统上线前检查，包含三大核心检查项：服务对象台账收集、基础资源标准化交付验证、安全基线核验。支持脚本自动化验证和AI报告分析。
+                </div>
+                <div class="workflow-meta">
+                    <div class="workflow-meta-item">
+                        <span>📋</span>
+                        <span>3 个工作项</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>✓</span>
+                        <span>12 条验收标准</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>🤖</span>
+                        <span>3 项脚本验证</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>🧠</span>
+                        <span>1 项AI分析</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>👤</span>
+                        <span>系统管理员</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>🕐</span>
+                        <span>2024-03-22 创建</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 草稿工作流 -->
+            <div class="workflow-card" onclick="openEditModal('wf-002')">
+                <div class="workflow-header">
+                    <div>
+                        <div class="workflow-title">数据库变更检查流程</div>
+                        <span class="workflow-version">v1.0</span>
+                    </div>
+                    <span class="status-tag status-draft">草稿</span>
+                </div>
+                <div class="workflow-desc">
+                    针对数据库变更操作的专项检查流程，包含SQL审核、备份检查、回滚方案确认等
+                </div>
+                <div class="workflow-meta">
+                    <div class="workflow-meta-item">
+                        <span>📋</span>
+                        <span>3 个工作项</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>✓</span>
+                        <span>5 条验收标准</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>👤</span>
+                        <span>张运维</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>🕐</span>
+                        <span>2024-03-21 创建</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 已归档工作流 -->
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div>
+                        <div class="workflow-title">标准上线检查流程</div>
+                        <span class="workflow-version">v0.9</span>
+                    </div>
+                    <span class="status-tag status-archived">已归档</span>
+                </div>
+                <div class="workflow-desc">
+                    旧版本标准上线检查流程，已被 v1.0 替代
+                </div>
+                <div class="workflow-meta">
+                    <div class="workflow-meta-item">
+                        <span>📋</span>
+                        <span>3 个工作项</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>👤</span>
+                        <span>系统管理员</span>
+                    </div>
+                    <div class="workflow-meta-item">
+                        <span>🕐</span>
+                        <span>2024-03-15 归档</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 创建工作流模态框 - 步骤1：基本信息 -->
+    <div class="modal-overlay" id="createModalStep1">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">创建工作流</h2>
+                <button class="modal-close" onclick="closeModal('createModalStep1')">&times;</button>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="steps">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-title">基本信息</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">选择工作项</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">配置验收标准</div>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">工作流名称 <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="请输入工作流名称，如：标准上线检查流程">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工作流描述</label>
+                    <textarea class="form-textarea" placeholder="描述该工作流的适用场景和目的"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">版本号</label>
+                    <input type="text" class="form-input" value="v1.0" placeholder="如：v1.0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('createModalStep1')">取消</button>
+                <button class="btn btn-primary" onclick="goToStep2()">下一步：选择工作项 &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建工作流模态框 - 步骤2：选择工作项 -->
+    <div class="modal-overlay" id="createModalStep2">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">创建工作流 - 选择工作项</h2>
+                <button class="modal-close" onclick="closeModal('createModalStep2')">&times;</button>
+            </div>
+            
+            <div class="steps">
+                <div class="step completed">
+                    <div class="step-number">✓</div>
+                    <div class="step-title">基本信息</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <div class="step-title">选择工作项</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">配置验收标准</div>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <p style="color: #666; margin-bottom: 16px;">请选择需要包含在工作流中的检查项。系统预置三大核心检查项，包含详细的验收标准和验证方式。</p>
+                
+                <div class="work-item-types">
+                    <!-- 服务对象台账收集 -->
+                    <div class="work-item-type-card selected" onclick="toggleWorkItem(this)">
+                        <div class="type-card-header">
+                            <div class="type-card-title">📊 服务对象台账收集</div>
+                            <span class="type-card-badge preset">系统预置</span>
+                        </div>
+                        <div class="type-card-desc">
+                            收集应用系统、云服务、账户等台账信息，确保资源清晰可控
+                        </div>
+                        <div class="type-card-standards">
+                            <span class="tag tag-manual">人工核验</span>
+                            包含 3 类台账表，9 个字段要求
+                        </div>
+                    </div>
+
+                    <!-- 基础资源标准化交付 -->
+                    <div class="work-item-type-card selected" onclick="toggleWorkItem(this)">
+                        <div class="type-card-header">
+                            <div class="type-card-title">🏗️ 基础资源标准化交付</div>
+                            <span class="type-card-badge preset">系统预置</span>
+                        </div>
+                        <div class="type-card-desc">
+                            验证系统基线配置和软件标准化部署，确保符合安全基线要求
+                        </div>
+                        <div class="type-card-standards">
+                            <span class="tag tag-script">脚本验证</span>
+                            <span class="tag tag-ai">AI分析</span>
+                            系统基线(7项) + 软件部署(4项)
+                        </div>
+                    </div>
+
+                    <!-- 安全基线核验 -->
+                    <div class="work-item-type-card selected" onclick="toggleWorkItem(this)">
+                        <div class="type-card-header">
+                            <div class="type-card-title">🛡️ 安全基线核验</div>
+                            <span class="type-card-badge preset">系统预置</span>
+                        </div>
+                        <div class="type-card-desc">
+                            自动分析安全团队提供的加固报告，判断是否通过安全基线检查
+                        </div>
+                        <div class="type-card-standards">
+                            <span class="tag tag-ai">AI自动分析</span>
+                            提取报告结论，判断通过/不通过
+                        </div>
+                    </div>
+
+                    <!-- 生产环境权限移交 -->
+                    <div class="work-item-type-card" onclick="toggleWorkItem(this)">
+                        <div class="type-card-header">
+                            <div class="type-card-title">🔐 生产环境权限移交</div>
+                            <span class="type-card-badge preset">系统预置</span>
+                        </div>
+                        <div class="type-card-desc">
+                            确认生产环境访问权限已正确配置和移交
+                        </div>
+                        <div class="type-card-standards">
+                            <span class="tag tag-manual">人工核验</span>
+                            权限清单、账户有效性验证
+                        </div>
+                    </div>
+
+                    <!-- 监控告警配置确认 -->
+                    <div class="work-item-type-card" onclick="toggleWorkItem(this)">
+                        <div class="type-card-header">
+                            <div class="type-card-title">📈 监控告警配置确认</div>
+                            <span class="type-card-badge preset">系统预置</span>
+                        </div>
+                        <div class="type-card-desc">
+                            验证云监控Agent安装、监控指标接入、告警阈值和接收人配置
+                        </div>
+                        <div class="type-card-standards">
+                            <span class="tag tag-script">脚本验证</span>
+                            <span class="tag tag-manual">人工核验</span>
+                            Agent安装 + 指标接入 + 告警配置
+                        </div>
+                    </div>
+
+                    <!-- 自定义工作项 -->
+                    <div class="work-item-type-card" onclick="openCustomWorkItemModal()">
+                        <div class="type-card-header">
+                            <div class="type-card-title">➕ 添加自定义工作项</div>
+                            <span class="type-card-badge">自定义</span>
+                        </div>
+                        <div class="type-card-desc">
+                            根据实际需求添加其他检查项，可自定义验收标准和验证方式
+                        </div>
+                        <div class="type-card-standards">
+                            <span class="tag tag-manual">人工</span>
+                            <span class="tag tag-script">脚本</span>
+                            <span class="tag tag-ai">AI</span>
+                            灵活配置验收标准
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="backToStep1()">&larr; 上一步</button>
+                <button class="btn btn-primary" onclick="goToStep3()">下一步：配置验收标准 &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建工作流模态框 - 步骤3：配置验收标准 -->
+    <div class="modal-overlay" id="createModalStep3">
+        <div class="modal" style="max-width: 1200px;">
+            <div class="modal-header">
+                <h2 class="modal-title">创建工作流 - 配置验收标准</h2>
+                <button class="modal-close" onclick="closeModal('createModalStep3')">&times;</button>
+            </div>
+            
+            <div class="steps">
+                <div class="step completed">
+                    <div class="step-number">✓</div>
+                    <div class="step-title">基本信息</div>
+                </div>
+                <div class="step completed">
+                    <div class="step-number">✓</div>
+                    <div class="step-title">选择工作项</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">3</div>
+                    <div class="step-title">配置验收标准</div>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="work-item-list">
+                    <!-- 1. 服务对象台账收集 -->
+                    <div class="work-item-card">
+                        <div class="work-item-header">
+                            <div class="work-item-title">
+                                <span>📊</span>
+                                服务对象台账收集
+                                <span class="work-item-type">inventory</span>
+                            </div>
+                            <div class="work-item-actions">
+                                <button class="icon-btn" onclick="openCriteriaConfigModal()" title="编辑">编辑</button>
+                                <button class="icon-btn" onclick="downloadTemplate()" title="下载">下载</button>
+                                <button class="icon-btn" onclick="viewDetails()" title="查看">查看</button>
+                            </div>
+                        </div>
+                        
+                        <div class="criteria-config-panel">
+                            <!-- 1.1 应用系统台账表 -->
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">1.1 应用系统台账表</span>
+                                    <span class="criteria-subtype-badge">人工核验</span>
+                                </div>
+                                <div class="criteria-subtype-desc">确保所有应用系统信息完整可追溯</div>
+                                <div class="criteria-fields">
+                                    <span class="field-tag">IP</span>
+                                    <span class="field-tag">主机名</span>
+                                    <span class="field-tag">配置(CPU/内存/磁盘)</span>
+                                    <span class="field-tag">用途</span>
+                                    <span class="field-tag">所属系统</span>
+                                    <span class="field-tag">责任人</span>
+                                    <span class="field-tag">上线时间</span>
+                                </div>
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：应用系统台账表（Excel格式）</div>
+                                </div>
+                            </div>
+
+                            <!-- 1.2 云服务开通台账表 -->
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">1.2 云服务开通台账表</span>
+                                    <span class="criteria-subtype-badge">人工核验</span>
+                                </div>
+                                <div class="criteria-subtype-desc">确保云服务资源清晰可控</div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                    <strong>IAAS层：</strong>计算服务(ECS/VM/容器)、网络服务(VPC/SLB/安全组)、存储服务(对象存储/块存储/NAS)、备份服务(快照/备份策略)
+                                </div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                    <strong>PAAS层：</strong>数据库(MySQL/Redis/MongoDB等)、消息队列(Kafka/RabbitMQ等)、缓存服务、其他中间件
+                                </div>
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：云服务开通台账表（Excel格式）</div>
+                                </div>
+                            </div>
+
+                            <!-- 1.3 系统及软件账户台账表 -->
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">1.3 系统及软件账户台账表</span>
+                                    <span class="criteria-subtype-badge">人工核验</span>
+                                </div>
+                                <div class="criteria-subtype-desc">确保账户权限清晰、安全可控</div>
+                                <div class="criteria-fields">
+                                    <span class="field-tag">系统名称</span>
+                                    <span class="field-tag">服务器名称</span>
+                                    <span class="field-tag">IP</span>
+                                    <span class="field-tag">系统账户名</span>
+                                    <span class="field-tag">软件账户名</span>
+                                    <span class="field-tag">权限级别</span>
+                                    <span class="field-tag">持有人</span>
+                                    <span class="field-tag">有效期</span>
+                                    <span class="field-tag">密码修改周期</span>
+                                </div>
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：系统及软件账户台账表（Excel格式）</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 基础资源标准化交付 -->
+                    <div class="work-item-card" style="background: #f6ffed; border-color: #b7eb8f;">
+                        <div class="work-item-header">
+                            <div class="work-item-title">
+                                <span>🏗️</span>
+                                基础资源标准化交付
+                                <span class="work-item-type">resource_delivery</span>
+                                <span class="preset-badge">预置标准</span>
+                            </div>
+                            <div class="work-item-actions">
+                                <button class="icon-btn" onclick="openCriteriaConfigModal()" title="编辑">编辑</button>
+                                <button class="icon-btn" onclick="configScript()" title="配置">配置</button>
+                                <button class="icon-btn" onclick="viewDetails()" title="查看">查看</button>
+                            </div>
+                        </div>
+                        
+                        <div class="criteria-config-panel">
+                            <!-- 2.1 生产环境上线前系统基线配置 -->
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">2.1 生产环境上线前系统基线配置</span>
+                                    <span class="criteria-subtype-badge" style="background: #e6f7ff; color: #1890ff;">脚本验证</span>
+                                </div>
+                                <div class="criteria-subtype-desc">确保系统符合安全基线要求，通过验证脚本直接在服务器内执行，比截图更准确可靠</div>
+                                
+                                <div class="criteria-detail-section">
+                                    <div class="criteria-detail-title">详细检查项（7项）</div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ① 系统账户安全 - 设定符合《账户创建以及权限》基线要求
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ② 磁盘分区合规 - 系统盘与应用/数据盘物理或逻辑隔离
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ③ 网络安全 - 防火墙策略最小化，仅开放必要端口
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ④ 系统基础环境配置 - 时区同步(NTP)、字符集(UTF-8)
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ⑤ 自动更新控制 - 禁止机器自动重启、禁止自动更新
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ⑥ 证书管理 - 证书导入(如有)
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ⑦ 其他安全基线 - 符合组织安全基线要求
+                                    </div>
+                                </div>
+
+                                <div class="script-verification-config">
+                                    <div class="script-verification-title">🤖 脚本自动化验证配置</div>
+                                    <div class="script-verification-item">
+                                        <span>✓</span>
+                                        <span>系统基线检查脚本（SSH远程执行）</span>
+                                    </div>
+                                    <div class="script-verification-item">
+                                        <span>✓</span>
+                                        <span>自动解析脚本输出结果（JSON格式）</span>
+                                    </div>
+                                    <div class="script-verification-item">
+                                        <span>✓</span>
+                                        <span>生成脚本执行报告</span>
+                                    </div>
+                                </div>
+
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：操作手册 / 云上镜像包 / 脚本执行报告</div>
+                                </div>
+                            </div>
+
+                            <!-- 2.2 生产环境软件标准化部署 -->
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">2.2 生产环境软件标准化部署</span>
+                                    <span class="criteria-subtype-badge" style="background: #e6f7ff; color: #1890ff;">脚本验证</span>
+                                </div>
+                                <div class="criteria-subtype-desc">确保软件部署标准化、可复现</div>
+                                
+                                <div class="criteria-detail-section">
+                                    <div class="criteria-detail-title">详细检查项（4项）</div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ① 安装路径规范 - 符合《软件创建及目录权限》基线要求
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ② 安装脚本规范 - 符合bash4.0标准
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ③ 一键部署 - 支持一键式成功部署
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ④ 日志记录 - 保存成功安装的日志记录
+                                    </div>
+                                </div>
+
+                                <div class="script-verification-config">
+                                    <div class="script-verification-title">🤖 脚本自动化验证配置</div>
+                                    <div class="script-verification-item">
+                                        <span>✓</span>
+                                        <span>软件部署检查脚本（验证路径、权限、日志）</span>
+                                    </div>
+                                    <div class="script-verification-item">
+                                        <span>✓</span>
+                                        <span>安装脚本语法检查（bash4.0标准）</span>
+                                    </div>
+                                </div>
+
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：操作手册 / 安装脚本 / 安装日志</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 安全基线核验 -->
+                    <div class="work-item-card" style="background: #f6ffed; border-color: #b7eb8f;">
+                        <div class="work-item-header">
+                            <div class="work-item-title">
+                                <span>🛡️</span>
+                                安全基线核验
+                                <span class="work-item-type">security_baseline</span>
+                                <span class="preset-badge">预置标准</span>
+                            </div>
+                            <div class="work-item-actions">
+                                <button class="icon-btn" onclick="openCriteriaConfigModal()" title="编辑">编辑</button>
+                                <button class="icon-btn" onclick="configAI()" title="配置">配置</button>
+                                <button class="icon-btn" onclick="viewDetails()" title="查看">查看</button>
+                            </div>
+                        </div>
+                        
+                        <div class="criteria-config-panel">
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">安全加固报告核验</span>
+                                    <span class="criteria-subtype-badge" style="background: #f6ffed; color: #52c41a;">AI自动分析</span>
+                                </div>
+                                <div class="criteria-subtype-desc">安全团队提供的加固报告显示"通过"，覆盖密码安全、漏洞情况、网络安全等</div>
+                                
+                                <div class="ai-analysis-config">
+                                    <div class="ai-analysis-title">🧠 AI自动分析流程</div>
+                                    <ol class="ai-analysis-steps">
+                                        <li>上传安全扫描报告（PDF/Word格式）</li>
+                                        <li>AI自动提取报告结论部分</li>
+                                        <li>判断是否标注"通过/不通过"</li>
+                                        <li>生成分析结果，人工复核确认</li>
+                                    </ol>
+                                </div>
+
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：安全扫描报告（PDF/Word格式，安全团队提供）</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 生产环境权限移交 -->
+                    <div class="work-item-card">
+                        <div class="work-item-header">
+                            <div class="work-item-title">
+                                <span>🔐</span>
+                                生产环境权限移交
+                                <span class="work-item-type">permission_handover</span>
+                            </div>
+                            <div class="work-item-actions">
+                                <button class="icon-btn" title="配置">⚙️</button>
+                                <button class="icon-btn" title="删除">🗑️</button>
+                            </div>
+                        </div>
+                        
+                        <div class="criteria-config-panel">
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">权限移交确认</span>
+                                    <span class="criteria-subtype-badge">人工核验</span>
+                                </div>
+                                <div class="criteria-subtype-desc">确认生产环境访问权限已正确配置和移交</div>
+                                
+                                <div class="criteria-detail-section">
+                                    <div class="criteria-detail-title">检查项</div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> 生产环境账户已创建
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> 权限配置符合最小化原则
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> 权限移交文档已签署
+                                    </div>
+                                </div>
+
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：权限清单 / 移交文档</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. 监控告警配置确认 -->
+                    <div class="work-item-card">
+                        <div class="work-item-header">
+                            <div class="work-item-title">
+                                <span>📈</span>
+                                监控告警配置确认
+                                <span class="work-item-type">monitoring</span>
+                            </div>
+                            <div class="work-item-actions">
+                                <button class="icon-btn" title="配置">⚙️</button>
+                                <button class="icon-btn" title="删除">🗑️</button>
+                            </div>
+                        </div>
+                        
+                        <div class="criteria-config-panel">
+                            <div class="criteria-subtype">
+                                <div class="criteria-subtype-header">
+                                    <span class="criteria-subtype-title">监控告警配置验证</span>
+                                    <span class="criteria-subtype-badge" style="background: #e6f7ff; color: #1890ff;">脚本+人工</span>
+                                </div>
+                                <div class="criteria-subtype-desc">验证云监控Agent安装、监控指标接入、告警阈值和接收人配置</div>
+                                
+                                <div class="criteria-detail-section">
+                                    <div class="criteria-detail-title">检查项（3项）</div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ① 云监控(Cloud Monitor) Agent已安装
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ② 确认监控指标已接入统一监控平台（自建）
+                                    </div>
+                                    <div class="checklist-item">
+                                        <input type="checkbox" checked disabled> ③ 确认告警阈值合理，告警接收人已配置
+                                    </div>
+                                </div>
+
+                                <div class="script-verification-config">
+                                    <div class="script-verification-title">🤖 脚本验证</div>
+                                    <div class="script-verification-item">
+                                        <span>✓</span>
+                                        <span>Agent安装状态检查脚本</span>
+                                    </div>
+                                </div>
+
+                                <div class="deliverable-requirement" style="margin-top: 8px;">
+                                    <div class="deliverable-title" style="font-size: 12px;">📎 交付物：监控配置截图 / Agent状态报告</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="backToStep2()">&larr; 上一步</button>
+                <button class="btn" onclick="saveAsDraft()">保存为草稿</button>
+                <button class="btn btn-primary" onclick="publishWorkflow()">发布工作流</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义工作项模态框 -->
+    <div class="modal-overlay" id="customWorkItemModal">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">添加自定义工作项</h2>
+                <button class="modal-close" onclick="closeModal('customWorkItemModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">工作项名称 <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="请输入工作项名称，如：数据库备份检查">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工作项描述</label>
+                    <textarea class="form-textarea" placeholder="请输入工作项描述..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工作项类型 <span class="required">*</span></label>
+                    <select class="form-select">
+                        <option value="">请选择类型</option>
+                        <option value="inventory">服务对象台账收集</option>
+                        <option value="resource_delivery">基础资源标准化交付</option>
+                        <option value="security_baseline">安全基线核验</option>
+                        <option value="permission_handover">生产环境权限移交</option>
+                        <option value="monitoring">监控告警配置确认</option>
+                        <option value="custom">完全自定义</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">验证方式 <span class="required">*</span></label>
+                    <div class="verification-method-selector">
+                        <div class="verification-method-option selected">
+                            <div class="verification-method-icon">🤖</div>
+                            <div class="verification-method-name">脚本验证</div>
+                        </div>
+                        <div class="verification-method-option">
+                            <div class="verification-method-icon">🧠</div>
+                            <div class="verification-method-name">AI分析</div>
+                        </div>
+                        <div class="verification-method-option">
+                            <div class="verification-method-icon">👤</div>
+                            <div class="verification-method-name">人工核验</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">验收标准 <span class="required">*</span></label>
+                    <div class="knowledge-source-selector">
+                        <div class="knowledge-source-option selected" onclick="selectKnowledgeSource(this, 'knowledge')">
+                            <div class="knowledge-source-icon">📚</div>
+                            <div class="knowledge-source-title">知识库</div>
+                            <div class="knowledge-source-desc">从知识库选择基线要求</div>
+                        </div>
+                        <div class="knowledge-source-option" onclick="selectKnowledgeSource(this, 'import')">
+                            <div class="knowledge-source-icon">📄</div>
+                            <div class="knowledge-source-title">文档导入</div>
+                            <div class="knowledge-source-desc">导入MD/Word/Excel</div>
+                        </div>
+                        <div class="knowledge-source-option" onclick="selectKnowledgeSource(this, 'manual')">
+                            <div class="knowledge-source-icon">✏️</div>
+                            <div class="knowledge-source-title">手动输入</div>
+                            <div class="knowledge-source-desc">自定义输入标准</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('customWorkItemModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveCustomWorkItem()">保存工作项</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 验收标准配置模态框 - 新增/编辑验收标准 -->
+    <div class="modal-overlay" id="criteriaConfigModal">
+        <div class="modal" style="max-width: 1000px; max-height: 95vh;">
+            <div class="modal-header">
+                <h2 class="modal-title">配置验收标准</h2>
+                <button class="modal-close" onclick="closeModal('criteriaConfigModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">工作项</label>
+                    <input type="text" class="form-input" value="基础资源标准化交付" disabled style="background: #f5f5f5;">
+                </div>
+
+                <!-- 验收标准来源选择 -->
+                <div class="form-group">
+                    <label class="form-label">验收标准来源 <span class="required">*</span></label>
+                    <div class="knowledge-source-selector">
+                        <div class="knowledge-source-option selected" onclick="selectKnowledgeSource(this, 'knowledge')">
+                            <div class="knowledge-source-icon">📚</div>
+                            <div class="knowledge-source-title">知识库</div>
+                            <div class="knowledge-source-desc">从知识库选择基线要求</div>
+                        </div>
+                        <div class="knowledge-source-option" onclick="selectKnowledgeSource(this, 'import')">
+                            <div class="knowledge-source-icon">📄</div>
+                            <div class="knowledge-source-title">文档导入</div>
+                            <div class="knowledge-source-desc">导入MD/Word/Excel</div>
+                        </div>
+                        <div class="knowledge-source-option" onclick="selectKnowledgeSource(this, 'manual')">
+                            <div class="knowledge-source-icon">✏️</div>
+                            <div class="knowledge-source-title">手动输入</div>
+                            <div class="knowledge-source-desc">自定义输入标准</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 知识库选择面板 -->
+                <div id="knowledgePanel" class="knowledge-panel">
+                    <div class="knowledge-panel-header">
+                        <div class="knowledge-panel-title">
+                            <span>📚</span>
+                            <span>从知识库选择</span>
+                        </div>
+                        <button class="link-knowledge-btn" onclick="openKnowledgeSelector()">
+                            <span>🔍</span>
+                            <span>浏览知识库</span>
+                        </button>
+                    </div>
+
+                    <!-- 智能匹配推荐 -->
+                    <div class="smart-match-panel">
+                        <div class="smart-match-header">
+                            <div class="smart-match-title">
+                                <span>🎯</span>
+                                <span>智能匹配推荐</span>
+                            </div>
+                            <span class="smart-match-badge">基于工作项类型匹配</span>
+                        </div>
+                        <div class="smart-match-list">
+                            <div class="smart-match-item">
+                                <span class="smart-match-item-name">生产环境系统基线配置要求</span>
+                                <span class="smart-match-item-score">98%</span>
+                                <button class="smart-match-item-btn">选择</button>
+                            </div>
+                            <div class="smart-match-item">
+                                <span class="smart-match-item-name">软件标准化部署规范</span>
+                                <span class="smart-match-item-score">92%</span>
+                                <button class="smart-match-item-btn">选择</button>
+                            </div>
+                            <div class="smart-match-item">
+                                <span class="smart-match-item-name">系统基线检查脚本使用手册</span>
+                                <span class="smart-match-item-score">85%</span>
+                                <button class="smart-match-item-btn">选择</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 分类筛选 -->
+                    <div class="knowledge-category-filter">
+                        <span class="knowledge-category-tag active">全部</span>
+                        <span class="knowledge-category-tag">基础资源标准化交付</span>
+                        <span class="knowledge-category-tag">服务对象台账</span>
+                        <span class="knowledge-category-tag">安全基线</span>
+                        <span class="knowledge-category-tag">监控告警</span>
+                    </div>
+
+                    <!-- 搜索框 -->
+                    <div class="knowledge-search-box">
+                        <input type="text" class="knowledge-search-input" placeholder="搜索知识条目...">
+                        <button class="btn">🔍 搜索</button>
+                    </div>
+
+                    <!-- 知识条目列表 -->
+                    <div class="knowledge-item-list">
+                        <div class="knowledge-item-row selected">
+                            <input type="checkbox" class="knowledge-item-checkbox" checked>
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">生产环境系统基线配置要求</div>
+                                <div class="knowledge-item-meta">📂 基础资源标准化交付 | 📝 基线标准 | v1.0</div>
+                            </div>
+                            <span class="knowledge-item-match-score">98%</span>
+                        </div>
+                        <div class="knowledge-item-row">
+                            <input type="checkbox" class="knowledge-item-checkbox">
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">软件标准化部署规范</div>
+                                <div class="knowledge-item-meta">📂 基础资源标准化交付 | 📝 基线标准 | v1.1</div>
+                            </div>
+                            <span class="knowledge-item-match-score">92%</span>
+                        </div>
+                        <div class="knowledge-item-row">
+                            <input type="checkbox" class="knowledge-item-checkbox">
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">系统基线检查脚本使用手册</div>
+                                <div class="knowledge-item-meta">📂 基础资源标准化交付 | 📝 操作手册 | v1.0</div>
+                            </div>
+                            <span class="knowledge-item-match-score">85%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 文档导入面板 -->
+                <div id="importPanel" class="document-import-area" style="display: none;">
+                    <div class="document-import-icon">📤</div>
+                    <div class="document-import-text">
+                        <strong>拖拽文件到此处上传</strong><br>
+                        或点击选择文件
+                    </div>
+                    <button class="btn btn-primary">选择文件</button>
+                    <div class="document-import-formats">
+                        支持格式：Markdown (.md)、Word (.doc/.docx)、Excel (.xls/.xlsx)、文本 (.txt)
+                    </div>
+                </div>
+
+                <!-- 已导入文档列表 -->
+                <div id="importedDocsPanel" class="imported-documents" style="display: none;">
+                    <div class="imported-doc-item">
+                        <span class="imported-doc-icon">📄</span>
+                        <div class="imported-doc-info">
+                            <div class="imported-doc-name">系统基线验收标准.docx</div>
+                            <div class="imported-doc-meta">2.3 MB | 上传于 2024-03-22 10:30</div>
+                        </div>
+                        <span class="imported-doc-status success">✓ 解析完成</span>
+                        <button class="btn" style="padding: 4px 12px; font-size: 12px;">重新上传</button>
+                    </div>
+                </div>
+
+                <!-- 手动输入面板 -->
+                <div id="manualPanel" class="manual-input-form" style="display: none;">
+                    <div class="manual-input-toolbar">
+                        <button class="manual-input-btn"><b>B</b></button>
+                        <button class="manual-input-btn"><i>I</i></button>
+                        <button class="manual-input-btn">标题</button>
+                        <button class="manual-input-btn">列表</button>
+                        <button class="manual-input-btn">表格</button>
+                    </div>
+                    <textarea class="manual-input-textarea" placeholder="请输入验收标准内容，支持 Markdown 格式...
+
+例如：
+## 系统基线配置要求
+
+### 1. 账户安全
+- [ ] 系统账户符合《账户创建以及权限》基线要求
+- [ ] 密码复杂度符合安全规范
+
+### 2. 磁盘分区
+- [ ] 系统盘与应用/数据盘物理或逻辑隔离"></textarea>
+                </div>
+
+                <!-- 生成的验收标准预览 -->
+                <div class="generated-criteria-preview">
+                    <div class="generated-criteria-header">
+                        <div class="generated-criteria-title">
+                            🎯 将生成的验收标准
+                            <span class="criteria-source-tag knowledge">📚 来自知识库</span>
+                        </div>
+                        <span class="generated-criteria-count">7 项</span>
+                    </div>
+                    <div class="generated-criteria-list">
+                        <div class="generated-criteria-item">
+                            <input type="checkbox" class="generated-criteria-checkbox" checked>
+                            <div class="generated-criteria-content">
+                                <div class="generated-criteria-name">① 系统账户安全</div>
+                                <div class="generated-criteria-source">来源：生产环境系统基线配置要求</div>
+                            </div>
+                            <span class="generated-criteria-confidence">置信度 98%</span>
+                        </div>
+                        <div class="generated-criteria-item">
+                            <input type="checkbox" class="generated-criteria-checkbox" checked>
+                            <div class="generated-criteria-content">
+                                <div class="generated-criteria-name">② 磁盘分区合规</div>
+                                <div class="generated-criteria-source">来源：生产环境系统基线配置要求</div>
+                            </div>
+                            <span class="generated-criteria-confidence">置信度 98%</span>
+                        </div>
+                        <div class="generated-criteria-item">
+                            <input type="checkbox" class="generated-criteria-checkbox" checked>
+                            <div class="generated-criteria-content">
+                                <div class="generated-criteria-name">③ 网络安全</div>
+                                <div class="generated-criteria-source">来源：生产环境系统基线配置要求</div>
+                            </div>
+                            <span class="generated-criteria-confidence">置信度 95%</span>
+                        </div>
+                        <div class="generated-criteria-item">
+                            <input type="checkbox" class="generated-criteria-checkbox" checked>
+                            <div class="generated-criteria-content">
+                                <div class="generated-criteria-name">④ 系统基础环境配置</div>
+                                <div class="generated-criteria-source">来源：生产环境系统基线配置要求</div>
+                            </div>
+                            <span class="generated-criteria-confidence">置信度 95%</span>
+                        </div>
+                        <div class="generated-criteria-item">
+                            <input type="checkbox" class="generated-criteria-checkbox" checked>
+                            <div class="generated-criteria-content">
+                                <div class="generated-criteria-name">⑤ 自动更新控制</div>
+                                <div class="generated-criteria-source">来源：生产环境系统基线配置要求</div>
+                            </div>
+                            <span class="generated-criteria-confidence">置信度 92%</span>
+                        </div>
+                        <div class="generated-criteria-item">
+                            <input type="checkbox" class="generated-criteria-checkbox" checked>
+                            <div class="generated-criteria-content">
+                                <div class="generated-criteria-name">⑥ 证书管理</div>
+                                <div class="generated-criteria-source">来源：生产环境系统基线配置要求</div>
+                            </div>
+                            <span class="generated-criteria-confidence">置信度 90%</span>
+                        </div>
+                        <div class="generated-criteria-item">
+                            <input type="checkbox" class="generated-criteria-checkbox" checked>
+                            <div class="generated-criteria-content">
+                                <div class="generated-criteria-name">⑦ 其他安全基线</div>
+                                <div class="generated-criteria-source">来源：生产环境系统基线配置要求</div>
+                            </div>
+                            <span class="generated-criteria-confidence">置信度 88%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 验证方式配置 -->
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="form-label">验证方式 <span class="required">*</span></label>
+                    <div class="verification-method-selector">
+                        <div class="verification-method-option selected">
+                            <div class="verification-method-icon">🤖</div>
+                            <div class="verification-method-name">脚本验证</div>
+                            <div class="verification-method-desc">自动执行脚本检查</div>
+                        </div>
+                        <div class="verification-method-option">
+                            <div class="verification-method-icon">🧠</div>
+                            <div class="verification-method-name">AI分析</div>
+                            <div class="verification-method-desc">自动分析报告内容</div>
+                        </div>
+                        <div class="verification-method-option">
+                            <div class="verification-method-icon">👤</div>
+                            <div class="verification-method-name">人工核验</div>
+                            <div class="verification-method-desc">人工检查确认</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 交付物要求 -->
+                <div class="form-group">
+                    <label class="form-label">交付物要求</label>
+                    <div class="deliverable-type-selector">
+                        <span class="deliverable-type-option selected">操作手册</span>
+                        <span class="deliverable-type-option">云上镜像包</span>
+                        <span class="deliverable-type-option">脚本执行报告</span>
+                        <span class="deliverable-type-option">Excel表格</span>
+                        <span class="deliverable-type-option">Word文档</span>
+                        <span class="deliverable-type-option">PDF报告</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('criteriaConfigModal')">取消</button>
+                <button class="btn">保存草稿</button>
+                <button class="btn btn-primary">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 知识库选择器模态框 -->
+    <div class="modal-overlay" id="knowledgeSelectorModal">
+        <div class="modal" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h2 class="modal-title">📚 从知识库选择</h2>
+                <button class="modal-close" onclick="closeModal('knowledgeSelectorModal')">&times;</button>
+            </div>
+            <div class="modal-body knowledge-modal-body">
+                <!-- 左侧分类 -->
+                <div class="knowledge-modal-sidebar">
+                    <div style="font-weight: 600; margin-bottom: 12px;">知识分类</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="padding: 8px 12px; background: #1890ff; color: #fff; border-radius: 4px; cursor: pointer;">
+                            📋 全部
+                        </div>
+                        <div style="padding: 8px 12px; cursor: pointer; border-radius: 4px;" onmouseover="this.style.background='#e6f7ff'" onmouseout="this.style.background='transparent'">
+                            🏗️ 基础资源标准化交付
+                        </div>
+                        <div style="padding: 8px 12px; cursor: pointer; border-radius: 4px;" onmouseover="this.style.background='#e6f7ff'" onmouseout="this.style.background='transparent'">
+                            📊 服务对象台账收集
+                        </div>
+                        <div style="padding: 8px 12px; cursor: pointer; border-radius: 4px;" onmouseover="this.style.background='#e6f7ff'" onmouseout="this.style.background='transparent'">
+                            🔐 生产环境权限移交
+                        </div>
+                        <div style="padding: 8px 12px; cursor: pointer; border-radius: 4px;" onmouseover="this.style.background='#e6f7ff'" onmouseout="this.style.background='transparent'">
+                            🛡️ 安全基线核验
+                        </div>
+                        <div style="padding: 8px 12px; cursor: pointer; border-radius: 4px;" onmouseover="this.style.background='#e6f7ff'" onmouseout="this.style.background='transparent'">
+                            📈 监控告警配置确认
+                        </div>
+                    </div>
+                </div>
+                <!-- 右侧内容 -->
+                <div class="knowledge-modal-content">
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <input type="text" class="form-input" placeholder="搜索知识条目..." style="flex: 1;">
+                        <select class="form-select" style="width: 120px;">
+                            <option>所有类型</option>
+                            <option>基线标准</option>
+                            <option>验收要求</option>
+                            <option>操作手册</option>
+                        </select>
+                    </div>
+                    <div class="knowledge-item-list">
+                        <div class="knowledge-item-row selected">
+                            <input type="checkbox" class="knowledge-item-checkbox" checked>
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">生产环境系统基线配置要求</div>
+                                <div class="knowledge-item-meta">📂 基础资源标准化交付 | 📝 基线标准 | v1.0 | 👁️ 156次查看 | ✓ 15次使用</div>
+                            </div>
+                        </div>
+                        <div class="knowledge-item-row">
+                            <input type="checkbox" class="knowledge-item-checkbox">
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">软件标准化部署规范</div>
+                                <div class="knowledge-item-meta">📂 基础资源标准化交付 | 📝 基线标准 | v1.1 | 👁️ 89次查看 | ✓ 8次使用</div>
+                            </div>
+                        </div>
+                        <div class="knowledge-item-row">
+                            <input type="checkbox" class="knowledge-item-checkbox">
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">系统基线检查脚本使用手册</div>
+                                <div class="knowledge-item-meta">📂 基础资源标准化交付 | 📝 操作手册 | v1.0 | 👁️ 234次查看 | ✓ 23次使用</div>
+                            </div>
+                        </div>
+                        <div class="knowledge-item-row">
+                            <input type="checkbox" class="knowledge-item-checkbox">
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">应用系统台账收集检查清单</div>
+                                <div class="knowledge-item-meta">📂 服务对象台账收集 | 📝 检查清单 | v1.2 | 👁️ 312次查看 | ✓ 45次使用</div>
+                            </div>
+                        </div>
+                        <div class="knowledge-item-row">
+                            <input type="checkbox" class="knowledge-item-checkbox">
+                            <div class="knowledge-item-info">
+                                <div class="knowledge-item-title">安全加固报告验收要求</div>
+                                <div class="knowledge-item-meta">📂 安全基线核验 | 📝 验收要求 | v1.0 | 👁️ 178次查看 | ✓ 32次使用</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('knowledgeSelectorModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmKnowledgeSelection()">确认选择 (1)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑工作流模态框 -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h2 class="modal-title">编辑工作流</h2>
+                <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">工作流名称</label>
+                    <input type="text" class="form-input" value="标准上线检查流程">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工作流描述</label>
+                    <textarea class="form-textarea">适用于一般业务系统上线前检查，包含三大核心检查项：服务对象台账收集、基础资源标准化交付验证、安全基线核验。支持脚本自动化验证和AI报告分析。</textarea>
+                </div>
+                
+                <div class="work-items-section">
+                    <div class="section-title">
+                        <span>工作项列表（5个）</span>
+                        <button class="btn" onclick="openAddWorkItemModal()">+ 添加工作项</button>
+                    </div>
+                    
+                    <div class="work-item-list">
+                        <!-- 1. 服务对象台账收集 -->
+                        <div class="work-item-card">
+                            <div class="work-item-header">
+                                <div class="work-item-title">
+                                    <span>📊</span>
+                                    服务对象台账收集
+                                    <span class="work-item-type">inventory</span>
+                                </div>
+                                <div class="work-item-actions">
+                                    <button class="icon-btn">↑</button>
+                                    <button class="icon-btn">↓</button>
+                                    <button class="icon-btn" onclick="openCriteriaConfigModal()" title="配置验收标准">✏️</button>
+                                    <button class="icon-btn">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="criteria-list">
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>1.1 应用系统台账表</strong>
+                                        <div class="criteria-detail">IP、主机名、配置、用途、所属系统、责任人、上线时间</div>
+                                    </div>
+                                    <span class="criteria-type manual">人工核验</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>1.2 云服务开通台账表</strong>
+                                        <div class="criteria-detail">IAAS层(计算/网络/存储/备份) + PAAS层(数据库/消息队列/缓存)</div>
+                                    </div>
+                                    <span class="criteria-type manual">人工核验</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>1.3 系统及软件账户台账表</strong>
+                                        <div class="criteria-detail">系统名称、服务器名称、IP、账户名、权限级别、持有人、有效期、密码修改周期</div>
+                                    </div>
+                                    <span class="criteria-type manual">人工核验</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. 基础资源标准化交付 -->
+                        <div class="work-item-card" style="background: #f6ffed; border-color: #b7eb8f;">
+                            <div class="work-item-header">
+                                <div class="work-item-title">
+                                    <span>🏗️</span>
+                                    基础资源标准化交付
+                                    <span class="work-item-type">resource_delivery</span>
+                                    <span class="preset-badge">预置标准</span>
+                                </div>
+                                <div class="work-item-actions">
+                                    <button class="icon-btn">↑</button>
+                                    <button class="icon-btn">↓</button>
+                                    <button class="icon-btn" onclick="openCriteriaConfigModal()" title="配置验收标准">✏️</button>
+                                    <button class="icon-btn">⚙️</button>
+                                </div>
+                            </div>
+                            <div class="criteria-list">
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>2.1 生产环境上线前系统基线配置（7项）</strong>
+                                        <div class="criteria-detail">系统账户安全、磁盘分区合规、网络安全、环境配置、自动更新控制、证书管理、其他安全基线</div>
+                                    </div>
+                                    <span class="criteria-type script">脚本验证</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>2.2 生产环境软件标准化部署（4项）</strong>
+                                        <div class="criteria-detail">安装路径规范、安装脚本规范(bash4.0)、一键部署支持、日志记录保存</div>
+                                    </div>
+                                    <span class="criteria-type script">脚本验证</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. 安全基线核验 -->
+                        <div class="work-item-card" style="background: #f6ffed; border-color: #b7eb8f;">
+                            <div class="work-item-header">
+                                <div class="work-item-title">
+                                    <span>🛡️</span>
+                                    安全基线核验
+                                    <span class="work-item-type">security_baseline</span>
+                                    <span class="preset-badge">预置标准</span>
+                                </div>
+                                <div class="work-item-actions">
+                                    <button class="icon-btn">↑</button>
+                                    <button class="icon-btn">↓</button>
+                                    <button class="icon-btn" onclick="openCriteriaConfigModal()" title="配置验收标准">✏️</button>
+                                    <button class="icon-btn">🧠</button>
+                                </div>
+                            </div>
+                            <div class="criteria-list">
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>安全加固报告核验</strong>
+                                        <div class="criteria-detail">AI自动提取报告结论，判断是否标注"通过"</div>
+                                    </div>
+                                    <span class="criteria-type ai">AI自动</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. 生产环境权限移交 -->
+                        <div class="work-item-card">
+                            <div class="work-item-header">
+                                <div class="work-item-title">
+                                    <span>🔐</span>
+                                    生产环境权限移交
+                                    <span class="work-item-type">permission_handover</span>
+                                </div>
+                                <div class="work-item-actions">
+                                    <button class="icon-btn">↑</button>
+                                    <button class="icon-btn">↓</button>
+                                    <button class="icon-btn" onclick="openCriteriaConfigModal()" title="配置验收标准">✏️</button>
+                                    <button class="icon-btn">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="criteria-list">
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>权限移交确认</strong>
+                                        <div class="criteria-detail">生产环境账户已创建、权限配置符合最小化原则、移交文档已签署</div>
+                                    </div>
+                                    <span class="criteria-type manual">人工核验</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. 监控告警配置确认 -->
+                        <div class="work-item-card">
+                            <div class="work-item-header">
+                                <div class="work-item-title">
+                                    <span>📈</span>
+                                    监控告警配置确认
+                                    <span class="work-item-type">monitoring</span>
+                                </div>
+                                <div class="work-item-actions">
+                                    <button class="icon-btn">↑</button>
+                                    <button class="icon-btn">↓</button>
+                                    <button class="icon-btn" onclick="openCriteriaConfigModal()" title="配置验收标准">✏️</button>
+                                    <button class="icon-btn">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="criteria-list">
+                                <div class="criteria-item">
+                                    <div class="criteria-content">
+                                        <strong>监控告警配置验证（3项）</strong>
+                                        <div class="criteria-detail">①云监控Agent已安装 ②监控指标已接入统一平台 ③告警阈值和接收人已配置</div>
+                                    </div>
+                                    <span class="criteria-type script">脚本+人工</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('editModal')">取消</button>
+                <button class="btn btn-primary">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 打开创建模态框
+        function openCreateModal() {
+            document.getElementById('createModalStep1').classList.add('active');
+        }
+
+        // 打开编辑模态框
+        function openEditModal(id) {
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // 打开验收标准配置模态框
+        function openCriteriaConfigModal() {
+            document.getElementById('criteriaConfigModal').classList.add('active');
+        }
+
+        // 打开知识库选择器
+        function openKnowledgeSelector() {
+            document.getElementById('knowledgeSelectorModal').classList.add('active');
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // 步骤导航
+        function goToStep2() {
+            closeModal('createModalStep1');
+            document.getElementById('createModalStep2').classList.add('active');
+        }
+
+        function backToStep1() {
+            closeModal('createModalStep2');
+            document.getElementById('createModalStep1').classList.add('active');
+        }
+
+        function goToStep3() {
+            closeModal('createModalStep2');
+            document.getElementById('createModalStep3').classList.add('active');
+        }
+
+        function backToStep2() {
+            closeModal('createModalStep3');
+            document.getElementById('createModalStep2').classList.add('active');
+        }
+
+        // 切换工作项选择
+        function toggleWorkItem(element) {
+            element.classList.toggle('selected');
+        }
+
+        // 选择验收标准来源
+        function selectKnowledgeSource(element, source) {
+            // 移除所有选中状态
+            document.querySelectorAll('.knowledge-source-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            // 添加当前选中状态
+            element.classList.add('selected');
+
+            // 显示对应面板
+            document.getElementById('knowledgePanel').style.display = source === 'knowledge' ? 'block' : 'none';
+            document.getElementById('importPanel').style.display = source === 'import' ? 'block' : 'none';
+            document.getElementById('importedDocsPanel').style.display = source === 'import' ? 'block' : 'none';
+            document.getElementById('manualPanel').style.display = source === 'manual' ? 'block' : 'none';
+
+            // 更新来源标签
+            const sourceTags = {
+                'knowledge': '<span class="criteria-source-tag knowledge">📚 来自知识库</span>',
+                'import': '<span class="criteria-source-tag import">📄 来自文档导入</span>',
+                'manual': '<span class="criteria-source-tag manual">✏️ 手动输入</span>'
+            };
+            document.querySelector('.generated-criteria-title').innerHTML = '🎯 将生成的验收标准 ' + sourceTags[source];
+        }
+
+        // 确认知识库选择
+        function confirmKnowledgeSelection() {
+            closeModal('knowledgeSelectorModal');
+            // 这里可以添加更新选中状态的逻辑
+        }
+
+        // 保存为草稿
+        function saveAsDraft() {
+            alert('工作流已保存为草稿');
+            closeModal('createModalStep3');
+        }
+
+        // 发布工作流
+        function publishWorkflow() {
+            alert('工作流已发布！现在可以创建实例使用了。');
+            closeModal('createModalStep3');
+        }
+
+        // 打开添加工作项模态框
+        function openAddWorkItemModal() {
+            alert('添加工作项功能：\n\n1. 选择工作项类型（系统预置/自定义）\n2. 配置工作项名称和描述\n3. 添加验收标准（知识库/文档导入/手动输入）\n4. 设置验证方式（脚本/AI/人工）');
+        }
+
+        // 打开自定义工作项模态框
+        function openCustomWorkItemModal() {
+            document.getElementById('customWorkItemModal').classList.add('active');
+        }
+
+        // 下载模板
+        function downloadTemplate() {
+            alert('正在下载模板文件...');
+        }
+
+        // 查看详情
+        function viewDetails() {
+            alert('查看工作项详情');
+        }
+
+        // 配置脚本
+        function configScript() {
+            alert('配置脚本验证参数');
+        }
+
+        // 配置AI
+        function configAI() {
+            alert('配置AI分析参数');
+        }
+
+        // 保存自定义工作项
+        function saveCustomWorkItem() {
+            alert('自定义工作项已保存！');
+            closeModal('customWorkItemModal');
+        }
+
+        // 点击遮罩关闭
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // 文档导入拖拽功能
+        const importArea = document.getElementById('importPanel');
+        if (importArea) {
+            importArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                importArea.classList.add('dragover');
+            });
+
+            importArea.addEventListener('dragleave', () => {
+                importArea.classList.remove('dragover');
+            });
+
+            importArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                importArea.classList.remove('dragover');
+                // 处理文件上传逻辑
+                alert('文件已上传，正在解析...');
+            });
+        }
+    </script>
+</body>
+</html>

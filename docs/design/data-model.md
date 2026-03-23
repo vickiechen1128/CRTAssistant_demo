@@ -185,19 +185,57 @@ erDiagram
 |-------|------|-----|------|------|
 | id | VARCHAR(36) | PK | 主键，UUID | "wi-001" |
 | workflow_id | VARCHAR(36) | FK → workflows.id, NOT NULL | 所属工作流ID | "wf-001" |
+| parent_id | VARCHAR(36) | FK → work_items.id, NULLABLE | 父工作项ID（NULL表示父工作项） | NULL |
 | name | VARCHAR(100) | NOT NULL | 工作项名称 | "安全基线核验" |
 | description | TEXT | | 工作项描述 | "检查系统安全配置是否符合基线要求" |
 | work_item_type | ENUM | NOT NULL | 类型：resource_delivery/inventory/permission_handover/security_baseline/monitoring/custom | "security_baseline" |
+| work_item_level | ENUM | NOT NULL, DEFAULT 'parent' | 工作项层级：parent(父)/child(子) | "parent" |
 | display_order | INT | NOT NULL, DEFAULT 0 | 显示顺序 | 3 |
 | estimated_duration | INT | | 预估时长（分钟） | 60 |
 | is_required | BOOLEAN | NOT NULL, DEFAULT TRUE | 是否必填 | TRUE |
+| is_preset | BOOLEAN | NOT NULL, DEFAULT FALSE | 是否系统预置 | TRUE |
+| status | ENUM | NOT NULL, DEFAULT 'active' | 状态：active/disabled | "active" |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 | 2024-03-22 10:00:00 |
 | updated_at | DATETIME | DEFAULT CURRENT_TIMESTAMP ON UPDATE | 更新时间 | 2024-03-22 10:00:00 |
 
 **索引**:
 - PRIMARY: id
 - INDEX: workflow_id
+- INDEX: parent_id
 - INDEX: work_item_type
+- INDEX: work_item_level
+
+**说明**:
+- 父工作项：parent_id为NULL，代表5大核心分类（服务对象台账收集、基础资源标准化交付等）
+- 子工作项：parent_id指向父工作项ID，代表具体的检查项（如应用系统台账表、系统基线配置等）
+- 子工作项的父工作项在创建时确定，不可更改
+
+---
+
+### 2.2.1 子工作项定义示例
+
+**5大父工作项（系统预置）**：
+
+| ID | 名称 | work_item_type | work_item_level | parent_id |
+|----|------|----------------|-----------------|-----------|
+| wi-001 | 服务对象台账收集 | inventory | parent | NULL |
+| wi-002 | 基础资源标准化交付 | resource_delivery | parent | NULL |
+| wi-003 | 安全基线核验 | security_baseline | parent | NULL |
+| wi-004 | 生产环境权限移交 | permission_handover | parent | NULL |
+| wi-005 | 监控告警配置确认 | monitoring | parent | NULL |
+
+**子工作项（关联父工作项）**：
+
+| ID | 名称 | parent_id | 父工作项 |
+|----|------|-----------|----------|
+| wi-001-01 | 应用系统台账表 | wi-001 | 服务对象台账收集 |
+| wi-001-02 | 云服务开通台账表 | wi-001 | 服务对象台账收集 |
+| wi-001-03 | 系统及软件账户台账表 | wi-001 | 服务对象台账收集 |
+| wi-002-01 | 生产环境上线前系统基线配置 | wi-002 | 基础资源标准化交付 |
+| wi-002-02 | 生产环境软件标准化部署 | wi-002 | 基础资源标准化交付 |
+| wi-003-01 | 安全加固报告核验 | wi-003 | 安全基线核验 |
+| wi-004-01 | 权限移交确认 | wi-004 | 生产环境权限移交 |
+| wi-005-01 | 监控告警配置验证 | wi-005 | 监控告警配置确认 |
 
 ---
 

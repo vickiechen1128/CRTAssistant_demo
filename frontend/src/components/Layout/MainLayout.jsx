@@ -1,15 +1,14 @@
 /**
  * 主布局组件
- * 包含侧边栏、顶部导航和内容区
+ * 包含顶部导航和内容区
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { Layout, Menu, Button, Dropdown, Avatar, Space } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, Space, Badge } from 'antd';
 import {
   DashboardOutlined,
   FileTextOutlined,
-  SettingOutlined,
   UserOutlined,
   LogoutOutlined,
   DatabaseOutlined,
@@ -19,10 +18,14 @@ import {
   FileSearchOutlined,
   NodeIndexOutlined,
   BranchesOutlined,
+  ScheduleOutlined,
+  BookOutlined,
+  CheckCircleOutlined,
+  GiftOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '../../stores';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 
 function MainLayout() {
   const navigate = useNavigate();
@@ -34,78 +37,37 @@ function MainLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  // 侧边栏菜单项
-  const menuItems = [
+  // 顶部导航菜单项
+  const navItems = [
     {
-      key: '/',
-      icon: <DashboardOutlined />,
-      label: '仪表盘',
+      key: '/plans',
+      icon: <ScheduleOutlined />,
+      label: '计划管理',
     },
     {
-      key: '/admission-tasks',
-      icon: <FileTextOutlined />,
-      label: '准入任务',
-    },
-    {
-      key: 'workflows',
-      icon: <NodeIndexOutlined />,
-      label: '工作流管理',
-      children: [
-        {
-          key: '/workflows',
-          icon: <BranchesOutlined />,
-          label: '工作流模板',
-        },
-        {
-          key: '/workflow-instances',
-          icon: <FileTextOutlined />,
-          label: '工作流实例',
-        },
-      ],
-    },
-    {
-      key: 'inventories',
-      icon: <DatabaseOutlined />,
+      key: '/inventories',
+      icon: <BookOutlined />,
       label: '台账管理',
-      children: [
-        {
-          key: '/inventories/server',
-          icon: <DatabaseOutlined />,
-          label: '应用系统台账',
-        },
-        {
-          key: '/inventories/cloud',
-          icon: <CloudOutlined />,
-          label: '云服务台账',
-        },
-        {
-          key: '/inventories/account',
-          icon: <UserOutlined />,
-          label: '系统账户台账',
-        },
-      ],
     },
     {
-      key: 'verification',
+      key: '/workflows',
+      icon: <NodeIndexOutlined />,
+      label: '工作流编排',
+    },
+    {
+      key: '/deliverables',
+      icon: <GiftOutlined />,
+      label: '交付物管理',
+    },
+    {
+      key: '/verification',
+      icon: <CheckCircleOutlined />,
+      label: '核验执行',
+    },
+    {
+      key: '/knowledge',
       icon: <FileSearchOutlined />,
-      label: '验证管理',
-      children: [
-        {
-          key: '/verification/scripts',
-          icon: <ToolOutlined />,
-          label: '验证脚本',
-        },
-        {
-          key: '/verification/records',
-          icon: <FileTextOutlined />,
-          label: '验证记录',
-        },
-      ],
-    },
-    {
-      key: '/settings',
-      icon: <SettingOutlined />,
-      label: '系统设置',
+      label: '知识库',
     },
   ];
 
@@ -134,68 +96,117 @@ function MainLayout() {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      {/* 侧边栏 */}
-      <Sider theme="light" width={200}>
-        <div style={{ 
-          height: 64, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          fontSize: 18,
-          fontWeight: 'bold',
-          borderBottom: '1px solid #f0f0f0'
-        }}>
-          运维经理
-        </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={({ key }) => navigate(key)}
-          style={{ borderRight: 0 }}
-        />
-      </Sider>
-
-      <Layout>
-        {/* 顶部导航 */}
-        <Header style={{ 
-          background: '#fff', 
-          padding: '0 24px',
+    <Layout style={{ minHeight: '100vh', background: '#f5f7fa' }}>
+      {/* 顶部Banner */}
+      <Header style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: 0,
+        height: 'auto',
+        lineHeight: 'normal',
+      }}>
+        {/* 顶部栏 */}
+        <div style={{
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.1)'
+          alignItems: 'center',
+          padding: '16px 32px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
         }}>
-          <div style={{ fontSize: 16 }}>
-            仿真运维经理 - 准入管理系统
+          {/* Logo */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            fontSize: '22px',
+            fontWeight: 600,
+            color: 'white',
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'rgba(255,255,255,0.2)',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+            }}>
+              🤖
+            </div>
+            <span>仿真运维经理</span>
           </div>
-          
+
+          {/* 用户信息 */}
           <Space>
-            <span style={{ color: '#666' }}>
-              {user?.real_name} ({user?.role})
+            <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+              {user?.real_name || user?.username}
             </span>
             <Dropdown
               menu={{ items: userMenuItems, onClick: handleMenuClick }}
               placement="bottomRight"
             >
-              <Avatar icon={<UserOutlined />} style={{ cursor: 'pointer' }} />
+              <Avatar 
+                icon={<UserOutlined />} 
+                style={{ 
+                  cursor: 'pointer',
+                  background: 'rgba(255,255,255,0.2)',
+                }} 
+              />
             </Dropdown>
           </Space>
-        </Header>
+        </div>
 
-        {/* 内容区 */}
-        <Content style={{ 
-          margin: 24, 
-          padding: 24, 
-          background: '#fff',
-          borderRadius: 8,
-          minHeight: 280,
-          overflow: 'auto'
+        {/* 导航Tab */}
+        <div style={{
+          display: 'flex',
+          padding: '0 32px',
+          gap: '8px',
         }}>
-          <Outlet />
-        </Content>
-      </Layout>
+          {navItems.map(item => (
+            <div
+              key={item.key}
+              onClick={() => navigate(item.key)}
+              style={{
+                padding: '14px 24px',
+                fontSize: '15px',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                borderBottom: `3px solid ${location.pathname.startsWith(item.key) ? 'white' : 'transparent'}`,
+                opacity: location.pathname.startsWith(item.key) ? 1 : 0.7,
+                background: location.pathname.startsWith(item.key) ? 'rgba(255,255,255,0.15)' : 'transparent',
+                fontWeight: location.pathname.startsWith(item.key) ? 500 : 'normal',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'white',
+              }}
+              onMouseEnter={(e) => {
+                if (!location.pathname.startsWith(item.key)) {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!location.pathname.startsWith(item.key)) {
+                  e.currentTarget.style.opacity = '0.7';
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </Header>
+
+      {/* 内容区 */}
+      <Content style={{ 
+        padding: '24px 32px',
+        minHeight: 280,
+      }}>
+        <Outlet />
+      </Content>
     </Layout>
   );
 }

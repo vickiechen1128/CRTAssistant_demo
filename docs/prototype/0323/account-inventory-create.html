@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建与导入系统及软件账号台账</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header-banner {
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+            color: white;
+            padding: 0;
+            box-shadow: 0 4px 20px rgba(252, 74, 26, 0.3);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .nav-tabs {
+            display: flex;
+            padding: 0 32px;
+            gap: 8px;
+        }
+        .nav-tab {
+            padding: 14px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;
+        }
+        .nav-tab:hover {
+            opacity: 1;
+            background: rgba(255,255,255,0.1);
+        }
+        .nav-tab.active {
+            opacity: 1;
+            border-bottom-color: white;
+            background: rgba(255,255,255,0.15);
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .page-title-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .page-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #d9d9d9;
+        }
+        .content-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .content-tab {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+            color: #666;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .content-tab:hover {
+            background: #f5f5f5;
+        }
+        .content-tab.active {
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+            color: white;
+            font-weight: 500;
+        }
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .account-type-selector {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .account-type-card {
+            flex: 1;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .account-type-card:hover {
+            border-color: #fc4a1a;
+            box-shadow: 0 4px 12px rgba(252, 74, 26, 0.15);
+        }
+        .account-type-card.active {
+            border-color: #fc4a1a;
+            background: linear-gradient(135deg, #fff7e6 0%, #fff2e8 100%);
+        }
+        .account-type-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .account-type-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .form-group label .required {
+            color: #ff4d4f;
+            margin-left: 4px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #fc4a1a;
+            box-shadow: 0 0 0 3px rgba(252, 74, 26, 0.1);
+        }
+        .permission-selector {
+            display: flex;
+            gap: 12px;
+        }
+        .permission-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+        .permission-option.active {
+            border-color: #ff4d4f;
+            background: #fff1f0;
+            color: #cf1322;
+            font-weight: 500;
+        }
+        .import-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px dashed #d9d9d9;
+            margin-bottom: 24px;
+        }
+        .upload-area {
+            border: 2px dashed #fc4a1a;
+            border-radius: 12px;
+            padding: 48px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        .upload-area:hover {
+            background: #fff7e6;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #fc4a1a;
+            margin-bottom: 16px;
+        }
+        .upload-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .upload-hint {
+            font-size: 13px;
+            color: #999;
+        }
+        .template-download {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e8e8e8;
+        }
+        .template-link {
+            color: #fc4a1a;
+            font-size: 13px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .btn-cancel {
+            padding: 12px 32px;
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-submit {
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .info-tip {
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .info-tip-text {
+            font-size: 13px;
+            color: #874d00;
+            line-height: 1.6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-banner">
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">🤖</div>
+                <span>仿真运维经理</span>
+            </div>
+            <div class="header-actions">
+                <div class="user-info">
+                    <span>运维管理员</span>
+                    <div class="user-avatar">👤</div>
+                </div>
+            </div>
+        </div>
+        <div class="nav-tabs">
+            <a href="plan-management.html" class="nav-tab">
+                <span>📋</span>
+                <span>计划管理</span>
+            </a>
+            <a href="inventory-management.html" class="nav-tab active">
+                <span>📚</span>
+                <span>台账管理</span>
+            </a>
+            <a href="#" class="nav-tab">
+                <span>⚙️</span>
+                <span>工作流编排</span>
+            </a>
+            <a href="#" class="nav-tab">
+                <span>📦</span>
+                <span>交付物管理</span>
+            </a>
+            <a href="#" class="nav-tab">
+                <span>✅</span>
+                <span>核验执行</span>
+            </a>
+            <a href="#" class="nav-tab">
+                <span>📖</span>
+                <span>知识库</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">
+                <div class="page-title-icon">🔐</div>
+                <div>
+                    <div style="font-size: 20px; font-weight: 600;">创建与导入系统及软件账号台账</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 4px;">台账管理 &gt; 系统及软件账号台账 &gt; 创建/导入</div>
+                </div>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary" onclick="history.back()">
+                    <span>←</span>
+                    <span>返回列表</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content-tabs">
+            <div class="content-tab active" onclick="switchTab('manual')">
+                <span>📝</span>
+                <span>手动录入</span>
+            </div>
+            <div class="content-tab" onclick="switchTab('import')">
+                <span>📥</span>
+                <span>批量导入</span>
+            </div>
+        </div>
+        
+        <div id="manual-tab" class="tab-content active">
+            <div class="form-container">
+                <div class="info-tip">
+                    <span>ℹ️</span>
+                    <span class="info-tip-text">系统及软件账号台账记录服务器和软件的账户信息，包括权限级别、持有人、有效期、密码修改周期等安全相关信息。</span>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">关联信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>选择应用系统 <span class="required">*</span></label>
+                            <select>
+                                <option value="">请选择应用系统</option>
+                                <option value="app-001">订单管理系统</option>
+                                <option value="app-002">支付系统</option>
+                                <option value="app-003">用户中心</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>选择服务器 <span class="required">*</span></label>
+                            <select>
+                                <option value="">请选择服务器</option>
+                                <option value="server-001">order-server-01 (192.168.1.101)</option>
+                                <option value="server-002">payment-server-01 (192.168.1.102)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">账户类型</div>
+                    <div class="account-type-selector">
+                        <div class="account-type-card active" onclick="selectAccountType(this, 'system')">
+                            <div class="account-type-icon">🖥️</div>
+                            <div class="account-type-name">系统账户</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">操作系统层面的账户</div>
+                        </div>
+                        <div class="account-type-card" onclick="selectAccountType(this, 'software')">
+                            <div class="account-type-icon">⚙️</div>
+                            <div class="account-type-name">软件账户</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">应用/数据库层面的账户</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">账户信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>账户名 <span class="required">*</span></label>
+                            <input type="text" placeholder="如：root、order_app">
+                        </div>
+                        <div class="form-group">
+                            <label>权限级别 <span class="required">*</span></label>
+                            <div class="permission-selector">
+                                <div class="permission-option active">管理员</div>
+                                <div class="permission-option">读写</div>
+                                <div class="permission-option">只读</div>
+                                <div class="permission-option">执行</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>持有人姓名 <span class="required">*</span></label>
+                            <input type="text" placeholder="持有人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label>持有人部门</label>
+                            <input type="text" placeholder="如：运维部">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>密码修改周期(天)</label>
+                            <input type="number" value="90">
+                        </div>
+                        <div class="form-group">
+                            <label>有效期结束 <span class="required">*</span></label>
+                            <input type="datetime-local">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn-cancel" onclick="history.back()">取消</button>
+                    <button class="btn-submit">创建账号台账</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="import-tab" class="tab-content">
+            <div class="form-container">
+                <div class="info-tip">
+                    <span>ℹ️</span>
+                    <span class="info-tip-text">支持通过Excel文件批量导入系统及软件账号台账数据。请下载模板文件，按模板格式填写后上传。</span>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">选择导入账户类型</div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>导入账户类型 <span class="required">*</span></label>
+                            <select>
+                                <option value="">请选择导入类型</option>
+                                <option value="system">系统账户（OS层：root、admin等）</option>
+                                <option value="software">软件账户（应用层：数据库账户、应用账户等）</option>
+                                <option value="all">全部账户类型</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="import-section">
+                    <div class="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">点击或拖拽Excel文件到此处上传</div>
+                        <div class="upload-hint">支持 .xlsx, .xls 格式文件，单个文件不超过 10MB</div>
+                    </div>
+                    <div class="template-download">
+                        <a href="#" class="template-link">
+                            <span>📥</span>
+                            <span>下载导入模板</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn-cancel" onclick="history.back()">取消</button>
+                    <button class="btn-submit">开始导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.closest('.content-tab').classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+        function selectAccountType(element, type) {
+            document.querySelectorAll('.account-type-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+        }
+    </script>
+</body>
+</html>

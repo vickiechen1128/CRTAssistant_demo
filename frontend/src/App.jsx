@@ -9,22 +9,16 @@ import { useAuthStore } from './stores';
 // 页面组件
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import TaskList from './pages/AdmissionTasks/List';
-import TaskDetail from './pages/AdmissionTasks/Detail';
-import CreateTask from './pages/AdmissionTasks/Create';
-import Inventories from './pages/Inventories';
-import ServerInventory from './pages/Inventories/ServerInventory';
-import CloudInventory from './pages/Inventories/CloudInventory';
-import AccountInventory from './pages/Inventories/AccountInventory';
-import ServerInventoryList from './pages/Inventories/ServerInventoryList';
-import CloudInventoryList from './pages/Inventories/CloudInventoryList';
-import AccountInventoryList from './pages/Inventories/AccountInventoryList';
-import VerificationScripts from './pages/Verification/Scripts';
-import VerificationRecords from './pages/Verification/Records';
 
-// 工作流管理页面
-import WorkflowList from './pages/Workflows/List';
-import WorkflowCreate from './pages/Workflows/Create';
+// 计划管理页面
+import PlanManagement from './pages/Plans/Management';
+import PlanCreation from './pages/Plans/Creation';
+
+// 台账管理页面
+import InventoryManagement from './pages/Inventories/Management';
+import AppInventoryCreate from './pages/Inventories/AppCreate';
+import CloudInventoryCreate from './pages/Inventories/CloudCreate';
+import AccountInventoryCreate from './pages/Inventories/AccountCreate';
 
 // 布局组件
 import MainLayout from './components/Layout/MainLayout';
@@ -80,24 +74,16 @@ function App() {
         {/* 需要登录的路由 */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/admission-tasks" element={<TaskList />} />
-          <Route path="/admission-tasks/new" element={<CreateTask />} />
-          <Route path="/admission-tasks/:id" element={<TaskDetail />} />
+          
+          {/* 计划管理路由 */}
+          <Route path="/plans" element={<PlanManagement />} />
+          <Route path="/plans/new" element={<PlanCreation />} />
+          
           {/* 台账管理路由 */}
-          <Route path="/inventories/task/:taskId" element={<Inventories />} />
-          <Route path="/inventories/server" element={<ServerInventoryList />} />
-          <Route path="/inventories/cloud" element={<CloudInventoryList />} />
-          <Route path="/inventories/account" element={<AccountInventoryList />} />
-          <Route path="/inventories/:id" element={<ServerInventory />} />
-          <Route path="/inventories/:taskId/server/create" element={<ServerInventory />} />
-          <Route path="/inventories/:taskId/cloud_resource/create" element={<CloudInventory />} />
-          <Route path="/inventories/:taskId/account/create" element={<AccountInventory />} />
-          {/* 验证管理路由 */}
-          <Route path="/verification/scripts" element={<VerificationScripts />} />
-          <Route path="/verification/records" element={<VerificationRecords />} />
-          {/* 工作流管理路由 */}
-          <Route path="/workflows" element={<WorkflowList />} />
-          <Route path="/workflows/new" element={<WorkflowCreate />} />
+          <Route path="/inventories" element={<InventoryManagement />} />
+          <Route path="/inventories/app/create" element={<AppInventoryCreate />} />
+          <Route path="/inventories/cloud/create" element={<CloudInventoryCreate />} />
+          <Route path="/inventories/account/create" element={<AccountInventoryCreate />} />
         </Route>
 
         {/* 默认重定向 */}

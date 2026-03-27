@@ -32,11 +32,12 @@
 | id | VARCHAR(36) | PK | 主键 |
 | plan_id | VARCHAR(50) | UNIQUE | 业务主键，格式：PLAN-YYYYMMDD-XXX |
 | name | VARCHAR(200) | NOT NULL | 计划名称 |
-| category | ENUM | NOT NULL | new_system/new_feature/business_change/db_change |
+| category | ENUM | NOT NULL | new_system/new_feature/func_change/arch_change/security_check |
 | priority | ENUM | NOT NULL | P0/P1/P2/P3 |
 | status | ENUM | NOT NULL | DRAFT/PENDING/IN_PROGRESS/COMPLETED/CANCELLED |
 | approval_files | JSON | NOT NULL | 存储上传成功的审批材料 URL 和文件名 |
-| related_inventory_ids | JSON | | 关联的台账ID列表 |
+| template_type | ENUM | NOT NULL | 工作流模板类型 [new_system/new_feature/func_change/arch_change/security] |
+| related_inventory_ids | JSON | 条件必填 | 关联的台账ID列表（security_check类型可为空） |
 | tag | VARCHAR(100) | | 数据标签 |
 | planned_start_time | DATETIME | NOT NULL | 计划执行时间 |
 | planned_end_time | DATETIME | | 计划结束时间（可选） |
@@ -60,13 +61,15 @@ graph TD
     
     Step3 -->|category=new_system| Branch1[弹出内嵌表单<br/>新增应用系统台账]
     Step3 -->|category=new_feature| Branch2[弹出台账列表<br/>单选+编辑功能模块]
-    Step3 -->|category=business_change| Branch3[弹出台账列表<br/>多选应用系统]
-    Step3 -->|category=db_change| Branch4[弹出台账列表<br/>多选应用系统<br/>不关联云服务]
+    Step3 -->|category=func_change| Branch3[弹出台账列表<br/>多选应用系统]
+    Step3 -->|category=arch_change| Branch4[弹出台账列表<br/>多选应用系统<br/>可能涉及云资源]
+    Step3 -->|category=security_check| Branch5[选择检查范围<br/>全系统/指定范围<br/>不关联台账]
     
     Branch1 --> Submit[最终提交创建]
     Branch2 --> Submit
     Branch3 --> Submit
     Branch4 --> Submit
+    Branch5 --> Submit
     
     Submit --> Generate[生成PlanID<br/>触发工作流]
     Generate --> End([创建完成])
@@ -118,9 +121,10 @@ graph TD
 | 计划分类 | 交互方式 | 台账操作 |
 |---------|---------|---------|
 | `new_system` (新系统上线) | 弹出内嵌表单，调用`新增应用系统台账`接口 | 创建新台账 |
-| `new_feature` (新功能发布) | 弹出台账列表，单选已有台账，允许编辑"功能模块" | 查询+编辑 |
-| `business_change` (业务功能变更) | 弹出台账列表，支持【多选】应用系统 | 查询+多选 |
-| `db_change` (数据库变更) | 弹出台账列表，支持【多选】应用系统（不关联云服务台账） | 查询+多选 |
+| `new_feature` (新功能上线) | 弹出台账列表，单选已有台账，允许编辑"功能模块" | 查询+编辑 |
+| `func_change` (功能变更) | 弹出台账列表，支持【多选】应用系统 | 查询+多选 |
+| `arch_change` (架构变更) | 弹出台账列表，支持【多选】应用系统（可能涉及云资源/数据库变更） | 查询+多选 |
+| `security_check` (安全检查) | 选择检查范围（全系统/指定范围），无需选择台账 | 不关联台账 |
 
 ---
 
@@ -142,8 +146,9 @@ graph TD
 - **分类简码映射**:
   - `new_system` → `NEW`
   - `new_feature` → `FTR`
-  - `business_change` → `BIZ`
-  - `db_change` → `DB`
+  - `func_change` → `FUN`
+  - `arch_change` → `ARC`
+  - `security_check` → `SEC`
 - **示例**: `PLAN-20240322-001-NEW-1711171200`
 
 ### [Rule 3] 时间强校验
@@ -176,14 +181,25 @@ graph TD
   2. 执行 `INSERT INTO inventory_applications` 创建台账记录
   3. 获取新创建台账的 `app_id`
   4. 执行 `INSERT INTO plans` 创建计划记录，将获取的 `app_id` 写入 `related_inventory_ids` 字段
-  5. 提交事务 (COMMIT)
+  5. **调用 Module_03**: 根据 `template_type` 自动生成标准化父工作项（检查项）
+  6. 提交事务 (COMMIT)
 
 - **异常处理**: 
-  - 若步骤 2-4 中任何一步失败，必须回滚事务 (ROLLBACK)
+  - 若步骤 2-5 中任何一步失败，必须回滚事务 (ROLLBACK)
   - 确保不会产生"孤儿台账"（即已创建台账但没有关联计划，或计划创建失败但台账残留）
   - 返回 500 错误，提示"计划创建失败，请重试"，前端保留表单数据允许用户重新提交
 
 - **幂等性保证**: 接口需支持幂等，通过前端生成的 `idempotency_key` 防止重复提交导致重复创建
+
+**工作流模板自动匹配规则**:
+
+| 计划分类(category) | 自动匹配模板类型(template_type) | 生成检查项 |
+|------------------|-----------------------------|----------|
+| `new_system` | `new_system` | 基础资源/台账/安全/监控 |
+| `new_feature` | `new_feature` | 台账(功能模块)/监控 |
+| `func_change` | `func_change` | 台账/监控 |
+| `arch_change` | `arch_change` | 基础资源/台账/安全/监控 |
+| `security_check` | `security` | 漏洞/基线/渗透/文件安全 |
 
 ---
 
@@ -267,7 +283,7 @@ graph TD
 
 | 字段 | 类型 | 必填 | 说明 |
 |-----|------|------|------|
-| action_type | String | 是 | 操作类型：`create_new`(新建)/`select_existing`(选择已有)/`select_and_edit`(选择并编辑) |
+| action_type | String | 是 | 操作类型：`create_new`(新建)/`select_existing`(选择已有)/`select_and_edit`(选择并编辑)/`security_scan`(安全检查) |
 | app_data | Object | 条件必填 | 当action_type=create_new时必填，包含应用系统完整字段 |
 | selected_app_ids | Array | 条件必填 | 当action_type=select_existing/select_and_edit时必填，已选择的台账ID列表 |
 | edit_data | Object | 条件必填 | 当action_type=select_and_edit时必填，包含需要编辑的字段 |
@@ -288,11 +304,21 @@ graph TD
 }
 ```
 
-- **business_change/db_change (多选场景)**:
+- **func_change/arch_change (多选场景)**:
 ```json
 {
   "action_type": "select_existing",
   "selected_app_ids": ["app-001", "app-002", "app-003"]
+}
+```
+
+- **security_check (安全检查场景)**:
+```json
+{
+  "action_type": "security_scan",
+  "scan_scope": "global",
+  "target_systems": [],
+  "check_items": ["vulnerability", "baseline", "penetration", "file_security"]
 }
 ```
 
@@ -355,6 +381,8 @@ graph TD
 ```
 
 **Step 3 - 选择范围**（根据分类动态变化）:
+
+- **new_system/new_feature/func_change/arch_change 类型**:
 ```
 ┌─────────────────────────────────────────┐
 │  创建计划 - 步骤 3/3                     │
@@ -372,6 +400,30 @@ graph TD
 └─────────────────────────────────────────┘
 ```
 
+- **security_check 类型**（安全检查）:
+```
+┌─────────────────────────────────────────┐
+│  创建计划 - 步骤 3/3                     │
+├─────────────────────────────────────────┤
+│  检查范围配置 *                          │
+│  ┌─────────────────────────────────┐   │
+│  │  ○ 全系统安全扫描               │   │
+│  │  ○ 指定范围检查                 │   │
+│  │                                 │   │
+│  │  [选择目标系统(可选)]            │   │
+│  │  • 订单系统 (APP-001)  [移除]   │   │
+│  └─────────────────────────────────┘   │
+│                                         │
+│  预生成检查项:                          │
+│  ☑ 系统漏洞修复                        │
+│  ☑ 基线加固                            │
+│  ☑ 渗透测试                            │
+│  ☑ 文件安全                            │
+│                                         │
+│  [< 上一步]          [提交创建]         │
+└─────────────────────────────────────────┘
+```
+
 ### 8.3 计划详情页
 
 标签页结构：
@@ -383,7 +435,50 @@ graph TD
 
 ---
 
-## 9. 待确认事项
+## 9. 工作流模板集成
+
+### 9.1 模板自动匹配机制
+
+创建计划时，系统根据 `category` 自动匹配对应的 `template_type`，并预加载标准化的父工作项（检查项）配置：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    计划创建工作流                           │
+├─────────────────────────────────────────────────────────────┤
+│  1. 用户选择计划分类(category)                               │
+│           ↓                                                 │
+│  2. 系统自动匹配 template_type                              │
+│           ↓                                                 │
+│  3. 从 Module_03 获取对应模板类型的标准检查项配置             │
+│           ↓                                                 │
+│  4. 创建 Plan 记录（包含 template_type）                    │
+│           ↓                                                 │
+│  5. 触发 Module_03 生成父工作项实例（检查项）               │
+│           ↓                                                 │
+│  6. 通知 Module_04 初始化工作流执行实例                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 9.2 检查项生成时序
+
+| 阶段 | 操作 | 涉及模块 |
+|-----|------|---------|
+| 计划创建 | 用户填写表单，选择分类 | Module_01 |
+| 模板匹配 | 根据category自动匹配template_type | Module_01 |
+| 检查项生成 | 基于模板类型生成父工作项（检查项） | Module_03 |
+| 工作流初始化 | 创建工作项实例，等待乙方执行 | Module_04 |
+
+### 9.3 安全检查特殊处理
+
+`security_check` 类型计划具有以下特殊规则：
+
+1. **台账关联**: `related_inventory_ids` 可为空，或选择性地指定检查范围
+2. **检查范围**: 
+   - `global`: 全系统安全扫描
+   - `targeted`: 指定范围扫描（需提供目标系统清单）
+3. **生成的检查项**: 固定为4项安全检查项（系统漏洞修复、基线加固、渗透测试、文件安全）
+
+## 10. 待确认事项
 
 - [ ] P0 级别计划的二次确认流程具体设计
 - [ ] 计划延期处理机制（是否允许修改时间、是否需要审批）
@@ -391,3 +486,4 @@ graph TD
 - [ ] 批量创建计划的需求场景
 - [ ] 计划与其他系统的集成（如工单系统、CMDB）
 - [ ] new_system 分类事务超时的补偿机制（如定时清理孤儿台账）
+- [ ] security_check 类型的检查范围选择交互设计

@@ -11,7 +11,7 @@ from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from .. import config
+from .config import settings
 from ..schemas.user import UserInToken
 
 # OAuth2 scheme
@@ -58,8 +58,8 @@ def create_access_token(user_id: int, username: str, role: str, expires_delta: O
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
     to_encode = {
         "sub": str(user_id),
         "username": username,
@@ -67,8 +67,8 @@ def create_access_token(user_id: int, username: str, role: str, expires_delta: O
         "exp": expire,
         "iat": datetime.utcnow(),
     }
-    
-    encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
+
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 
@@ -86,7 +86,7 @@ def decode_token(token: str) -> UserInToken:
         HTTPException: Token无效或过期
     """
     try:
-        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = int(payload.get("sub"))
         username = payload.get("username")
         role = payload.get("role")
@@ -110,16 +110,16 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     """
     获取当前登录用户（依赖注入使用）
     验证JWT Token并返回用户对象
-    
+
     注意：此函数使用延迟导入避免循环依赖
     """
     from ..database import get_db
     from ..models.user import User
-    
+
     # 获取数据库会话
     if db is None:
         db = next(get_db())
-    
+
     token_data = decode_token(token)
     user = db.query(User).filter(User.id == token_data.id).first()
     if not user or user.status != "active":
@@ -128,3 +128,26 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             detail="用户不存在或已被禁用"
         )
     return user
+
+
+from fastapi.security import APIKeyHeader
+
+# 可选的API Key认证方案（用于开发测试）
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+
+
+async def get_current_user_optional(token: Optional[str] = Depends(api_key_header)) -> Optional[dict]:
+    """
+    获取当前登录用户（可选，用于开发测试）
+    如果提供了有效token则返回用户信息，否则返回None
+    """
+    if not token:
+        return None
+    # 移除 "Bearer " 前缀
+    if token.startswith("Bearer "):
+        token = token[7:]
+    try:
+        token_data = decode_token(token)
+        return {"id": token_data.id, "username": token_data.username, "role": token_data.role}
+    except Exception:
+        return None

@@ -68,6 +68,17 @@ class Priority:
         """根据优先级确定初始状态"""
         return "PENDING" if self.level == 0 else "DRAFT"
     
+    @property
+    def label(self) -> str:
+        """获取优先级标签"""
+        mapping = {
+            0: "P0 - 最高优先级",
+            1: "P1 - 高优先级",
+            2: "P2 - 中优先级",
+            3: "P3 - 低优先级",
+        }
+        return mapping.get(self.level, f"P{self.level}")
+    
     def __str__(self) -> str:
         return f"P{self.level}"
     

@@ -162,3 +162,35 @@ class FunctionModuleRemovedEvent(DomainEvent):
     app_id: str = ""
     module_name: str = ""
     removed_by: str = ""
+
+
+@dataclass
+class FunctionModuleCreatedEvent(DomainEvent):
+    """功能模块创建事件"""
+    module_id: str = ""
+    app_id: str = ""
+    module_code: str = ""
+    module_name: str = ""
+    owner: str = ""
+    related_plan_id: Optional[str] = None
+    created_by: str = ""
+
+
+@dataclass
+class FunctionModuleStatusChangedEvent(DomainEvent):
+    """功能模块状态变更事件"""
+    module_id: str = ""
+    app_id: str = ""
+    module_name: str = ""
+    old_status: str = ""
+    new_status: str = ""
+    changed_by: str = ""
+
+
+@dataclass
+class FunctionModuleDeletedEvent(DomainEvent):
+    """功能模块删除事件"""
+    module_id: str = ""
+    app_id: str = ""
+    module_name: str = ""
+    deleted_by: str = ""

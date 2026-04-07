@@ -25,8 +25,12 @@ class PlanDomainService:
     
     def generate_data_tag(self, category: Category, date: datetime) -> str:
         """生成数据标签"""
-        sequence = self._plan_repository.get_next_sequence(date)
+        sequence = self.get_next_sequence(date)
         return PlanTag.generate(category.code, date, sequence).value
+    
+    def get_next_sequence(self, date: datetime) -> int:
+        """获取当日流水号（用于生成PlanID）"""
+        return self._plan_repository.get_next_sequence(date)
     
     def validate_inventory_link(
         self,

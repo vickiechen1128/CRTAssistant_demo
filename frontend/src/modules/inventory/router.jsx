@@ -20,6 +20,8 @@ const PageLoading = () => (
 // 懒加载页面组件
 const InventoryListView = React.lazy(() => import('./views/InventoryListView'));
 const ApplicationCreateView = React.lazy(() => import('./views/ApplicationCreateView'));
+const ApplicationDetailView = React.lazy(() => import('./views/ApplicationDetailViewEnhanced'));
+const ApplicationEditView = React.lazy(() => import('./views/ApplicationEditView'));
 const CloudResourceCreateView = React.lazy(() => import('./views/CloudResourceCreateView'));
 const AccountCreateView = React.lazy(() => import('./views/AccountCreateView'));
 
@@ -40,6 +42,22 @@ export const inventoryRoutes = [
     element: (
       <Suspense fallback={<PageLoading />}>
         <ApplicationCreateView />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/inventories/applications/:id',
+    element: (
+      <Suspense fallback={<PageLoading />}>
+        <ApplicationDetailView />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/inventories/applications/:id/edit',
+    element: (
+      <Suspense fallback={<PageLoading />}>
+        <ApplicationEditView />
       </Suspense>
     ),
   },

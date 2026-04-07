@@ -43,6 +43,7 @@ class ApplicationRepositoryImpl:
             id=model.id,
             app_name=model.app_name,
             app_description=model.app_description,
+            system_type=model.system_type,
             function_modules=model.function_modules,
             hostname=model.hostname,
             app_url=model.app_url,
@@ -62,6 +63,7 @@ class ApplicationRepositoryImpl:
             id=entity.id,
             app_name=entity.app_name,
             app_description=entity.app_description,
+            system_type=entity.system_type,
             function_modules=[m.to_dict() for m in entity.function_modules],
             hostname=entity.hostname,
             app_url=entity.app_url,
@@ -471,6 +473,23 @@ class InventoryRepositoryImpl:
         self._resource_repo = CloudResourceRepositoryImpl(session)
         self._account_repo = AccountRepositoryImpl(session)
 
+    # 通用查询方法
+    def get_by_id(self, id: str) -> Optional[Any]:
+        """根据ID获取台账（自动判断类型）"""
+        # 先尝试获取应用系统
+        app = self._app_repo.get_by_id(id)
+        if app:
+            return app
+        # 再尝试获取云资源
+        resource = self._resource_repo.get_by_id(id)
+        if resource:
+            return resource
+        # 最后尝试获取账号
+        account = self._account_repo.get_by_id(id)
+        if account:
+            return account
+        return None
+
     # 应用系统相关
     def get_application(self, app_id: str) -> Optional[Application]:
         return self._app_repo.get_by_id(app_id)
@@ -498,6 +517,10 @@ class InventoryRepositoryImpl:
 
     def save(self, application: Application) -> Application:
         return self._app_repo.save(application)
+
+    def delete(self, app_id: str) -> bool:
+        """删除应用系统"""
+        return self._app_repo.delete(app_id)
 
     # 云资源相关
     def get_cloud_resource(self, resource_id: str) -> Optional[CloudResource]:

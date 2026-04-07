@@ -8,8 +8,8 @@ from .audit_matrix_routes import router as audit_matrix_router
 
 # 创建聚合路由
 router = APIRouter()
-router.include_router(sop_template_router, prefix="/sop-templates")
-router.include_router(audit_matrix_router, prefix="/audit-matrix-configs")
+router.include_router(sop_template_router)
+router.include_router(audit_matrix_router)
 
 __all__ = [
     'router',

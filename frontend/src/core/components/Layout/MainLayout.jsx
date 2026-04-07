@@ -50,7 +50,7 @@ function MainLayout() {
       label: '台账管理',
     },
     {
-      key: '/workflows',
+      key: '/sop-templates',
       icon: <NodeIndexOutlined />,
       label: '工作流编排',
     },
@@ -133,7 +133,7 @@ function MainLayout() {
             }}>
               🤖
             </div>
-            <span>仿真运维经理</span>
+            <span>OpsPilot</span>
           </div>
 
           {/* 用户信息 */}

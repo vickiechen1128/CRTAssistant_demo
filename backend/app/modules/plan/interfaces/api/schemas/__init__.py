@@ -11,6 +11,11 @@ from .plan_schemas import (
     CancelPlanSchema,
     ApiResponseSchema
 )
+from .sync_schemas import (
+    SyncLogResponseSchema,
+    SyncStatisticsSchema,
+    ConsistencyCheckResponseSchema
+)
 
 __all__ = [
     'CreatePlanSchema',
@@ -22,5 +27,8 @@ __all__ = [
     'StartPlanSchema',
     'CompletePlanSchema',
     'CancelPlanSchema',
-    'ApiResponseSchema'
+    'ApiResponseSchema',
+    'SyncLogResponseSchema',
+    'SyncStatisticsSchema',
+    'ConsistencyCheckResponseSchema'
 ]

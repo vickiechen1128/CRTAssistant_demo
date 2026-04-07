@@ -453,6 +453,7 @@ class InventoryService:
             id=data['id'],
             app_name=data['app_name'],
             app_description=data['app_description'],
+            system_type=data.get('system_type', 'web'),
             function_modules=data['function_modules'],
             hostname=data['hostname'],
             app_url=data['app_url'],

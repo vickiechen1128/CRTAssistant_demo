@@ -7,6 +7,7 @@ from .plan_tag import PlanTag
 from .template_type import TemplateType
 from .file_info import FileInfo
 from .plan_basic_info import PlanBasicInfo
+from .affected_module import AffectedModule
 
 __all__ = [
     'Category',
@@ -17,4 +18,5 @@ __all__ = [
     'TemplateType',
     'FileInfo',
     'PlanBasicInfo',
+    'AffectedModule',
 ]

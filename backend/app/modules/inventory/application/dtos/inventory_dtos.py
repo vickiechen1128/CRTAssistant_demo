@@ -47,6 +47,7 @@ class ApplicationResponseDTO:
     id: str
     app_name: str
     app_description: Optional[str]
+    system_type: Optional[str]
     function_modules: List[Dict[str, Any]]
     hostname: Optional[str]
     app_url: Optional[str]

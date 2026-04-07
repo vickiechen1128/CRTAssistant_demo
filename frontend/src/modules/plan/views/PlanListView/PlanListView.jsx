@@ -1,6 +1,6 @@
 /**
  * PlanListView 组件
- * 计划列表页面
+ * 计划列表页面（优化版）
  */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,7 @@ import {
   message,
   Row,
   Col,
+  Badge,
 } from 'antd';
 import {
   PlusOutlined,
@@ -27,6 +28,8 @@ import {
   PlayCircleOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  AppstoreOutlined,
+  CodeOutlined,
 } from '@ant-design/icons';
 import { usePlanStore } from '../../store';
 import PlanStatusBadge from '../../components/PlanStatusBadge';
@@ -124,10 +127,16 @@ const PlanListView = () => {
   // 表格列定义
   const columns = [
     {
-      title: '数据标签',
-      dataIndex: 'data_tag',
-      key: 'data_tag',
-      width: 150,
+      title: 'PlanID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 180,
+      render: (id, record) => (
+        <div>
+          <div style={{ fontWeight: 'bold' }}>{id}</div>
+          <Tag size="small" style={{ fontSize: 11 }}>{record.data_tag}</Tag>
+        </div>
+      ),
     },
     {
       title: '计划名称',
@@ -164,6 +173,31 @@ const PlanListView = () => {
       key: 'status',
       width: 120,
       render: (status) => <PlanStatusBadge status={status} />,
+    },
+    {
+      title: '关联信息',
+      key: 'related_info',
+      width: 150,
+      render: (_, record) => (
+        <Space>
+          <Tooltip title={`${record.related_inventory_ids?.length || 0} 个应用系统`}>
+            <Badge 
+              count={record.related_inventory_ids?.length || 0}
+              style={{ backgroundColor: '#52c41a' }}
+            >
+              <AppstoreOutlined style={{ fontSize: 16, color: '#52c41a' }} />
+            </Badge>
+          </Tooltip>
+          <Tooltip title={`${record.affected_modules_count || 0} 个功能模块`}>
+            <Badge 
+              count={record.affected_modules_count || 0}
+              style={{ backgroundColor: '#1890ff' }}
+            >
+              <CodeOutlined style={{ fontSize: 16, color: '#1890ff' }} />
+            </Badge>
+          </Tooltip>
+        </Space>
+      ),
     },
     {
       title: '计划开始时间',
@@ -224,7 +258,8 @@ const PlanListView = () => {
               </Tooltip>
             )}
 
-            {(isDraft || isPending || isInProgress) && (
+            {/* PRD v3.1: IN_PROGRESS 状态不允许取消 */}
+            {(isDraft || isPending) && (
               <Tooltip title="取消">
                 <Popconfirm
                   title="确定要取消此计划吗？"
@@ -272,7 +307,7 @@ const PlanListView = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} md={8} lg={6}>
           <Input.Search
-            placeholder="搜索计划名称或标签"
+            placeholder="搜索计划名称或PlanID"
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
             onSearch={handleSearch}

@@ -91,27 +91,14 @@ const PlanForm = ({ initialValues = {}, onSubmit, onCancel, loading = false }) =
     try {
       const values = await form.validateFields();
 
-      // 组装提交数据
+      // 组装提交数据 - 与后端 CreatePlanSchema 对齐
       const submitData = {
-        basic_info: {
-          name: values.name,
-          category: values.category,
-          priority: values.priority,
-          planned_start_time: values.planned_start_time?.toISOString(),
-          planned_end_time: values.planned_end_time?.toISOString(),
-          description: values.description,
-        },
-        approval_files: fileList.map((file) => ({
-          file_name: file.name,
-          file_url: file.response?.url || file.url,
-          file_size: file.size,
-          uploaded_at: new Date().toISOString(),
-        })),
-        inventory_payload: {
-          action_type: getActionType(values.category),
-          // 根据分类添加不同的数据
-          ...(values.inventory_data || {}),
-        },
+        name: values.name,
+        category: values.category,
+        priority: values.priority,
+        description: values.description,
+        planned_start_time: values.planned_start_time?.toISOString(),
+        planned_end_time: values.planned_end_time?.toISOString(),
       };
 
       onSubmit?.(submitData);

@@ -1,13 +1,13 @@
 /**
  * PlanEditView 组件
- * 编辑计划页面
+ * 编辑计划页面 - 使用多步骤表单
  */
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, message, Spin, Alert, Space, Typography } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { usePlanStore } from '../../store';
-import PlanForm from '../../components/PlanForm';
+import PlanStepsForm from '../../components/PlanStepsForm';
 import { PlanStatus } from '../../api/types';
 
 const { Title } = Typography;
@@ -21,41 +21,30 @@ const PlanEditView = () => {
 
   const {
     currentPlan,
+    currentPlanDetail,
     loading,
-    submitting,
     fetchPlanDetail,
-    updateExistingPlan,
     clearCurrentPlan,
+    resetCreationStep,
   } = usePlanStore();
 
   // 加载计划详情
   useEffect(() => {
+    // 重置创建步骤
+    resetCreationStep();
     fetchPlanDetail(id);
 
     return () => {
       clearCurrentPlan();
     };
-  }, [id]);
+  }, [id, resetCreationStep, fetchPlanDetail, clearCurrentPlan]);
 
-  // 处理提交
-  const handleSubmit = async (values) => {
-    try {
-      await updateExistingPlan(id, values);
-      message.success('计划更新成功');
-      navigate(`/plans/${id}`);
-    } catch (error) {
-      message.error('更新失败：' + (error.message || '未知错误'));
-    }
-  };
+  // 检查是否可编辑
+  const isEditable = currentPlan?.status === PlanStatus.DRAFT;
 
-  // 处理取消
-  const handleCancel = () => {
-    navigate(`/plans/${id}`);
-  };
-
-  // 准备初始值
-  const prepareInitialValues = () => {
-    if (!currentPlan) return {};
+  // 准备编辑数据
+  const prepareEditData = () => {
+    if (!currentPlan) return null;
 
     return {
       name: currentPlan.name,
@@ -64,11 +53,11 @@ const PlanEditView = () => {
       description: currentPlan.description,
       planned_start_time: currentPlan.planned_start_time,
       planned_end_time: currentPlan.planned_end_time,
+      approval_files: currentPlanDetail?.approval_files || [],
+      affected_modules: currentPlanDetail?.affected_modules || [],
+      related_inventory_ids: currentPlanDetail?.related_inventory_ids || currentPlan.inventory_ids || [],
     };
   };
-
-  // 检查是否可编辑
-  const isEditable = currentPlan?.status === PlanStatus.DRAFT;
 
   if (loading) {
     return (
@@ -116,11 +105,10 @@ const PlanEditView = () => {
           <span style={{ color: '#999' }}>{currentPlan?.name}</span>
         </Space>
       </Card>
-      <PlanForm
-        initialValues={prepareInitialValues()}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        loading={submitting}
+      <PlanStepsForm
+        mode="edit"
+        planId={id}
+        initialData={prepareEditData()}
       />
     </div>
   );

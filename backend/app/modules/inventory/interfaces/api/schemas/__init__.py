@@ -24,8 +24,31 @@ from .inventory_schemas import (
     InventorySummarySchema,
     MessageResponseSchema,
 )
+from .function_module_schemas import (
+    FunctionModuleCreateSchema,
+    FunctionModuleUpdateSchema,
+    UpdateModuleStatusSchema,
+    LaunchModuleSchema,
+    FunctionModuleResponseSchema,
+    FunctionModuleTreeSchema,
+    FunctionModuleListResponseSchema,
+    FunctionModuleVersionHistorySchema,
+    ModuleStatusTransitionSchema,
+)
+from .lifecycle_log_schemas import (
+    LifecycleLogCreateSchema,
+    LifecycleLogResponseSchema,
+    TimelineItemSchema,
+    TimelineFilterSchema,
+    TimelineResponseSchema,
+    LogTypeInfoSchema,
+    LogTypeListSchema,
+    LogStatisticsSchema,
+    LogListResponseSchema,
+)
 
 __all__ = [
+    # 原有Schemas
     'FunctionModuleSchema',
     'ApplicationCreateSchema',
     'ApplicationUpdateSchema',
@@ -41,4 +64,24 @@ __all__ = [
     'PaginationSchema',
     'InventorySummarySchema',
     'MessageResponseSchema',
+    # 功能模块Schemas
+    'FunctionModuleCreateSchema',
+    'FunctionModuleUpdateSchema',
+    'UpdateModuleStatusSchema',
+    'LaunchModuleSchema',
+    'FunctionModuleResponseSchema',
+    'FunctionModuleTreeSchema',
+    'FunctionModuleListResponseSchema',
+    'FunctionModuleVersionHistorySchema',
+    'ModuleStatusTransitionSchema',
+    # 生命周期日志Schemas
+    'LifecycleLogCreateSchema',
+    'LifecycleLogResponseSchema',
+    'TimelineItemSchema',
+    'TimelineFilterSchema',
+    'TimelineResponseSchema',
+    'LogTypeInfoSchema',
+    'LogTypeListSchema',
+    'LogStatisticsSchema',
+    'LogListResponseSchema',
 ]

@@ -64,6 +64,7 @@ class Application:
     # 基本信息
     app_name: str
     app_description: Optional[str] = None
+    system_type: Optional[str] = field(default='web')
     function_modules: List[FunctionModule] = field(default_factory=list)
     
     # 部署信息
@@ -99,6 +100,7 @@ class Application:
         project_owner: str,
         created_by: str,
         app_description: Optional[str] = None,
+        system_type: Optional[str] = 'web',
         hostname: Optional[str] = None,
         app_url: Optional[str] = None,
         function_modules: Optional[List[Dict]] = None,
@@ -116,6 +118,7 @@ class Application:
             id=app_id,
             app_name=app_name,
             app_description=app_description,
+            system_type=system_type,
             function_modules=modules,
             hostname=hostname,
             app_url=app_url,
@@ -291,6 +294,7 @@ class Application:
             "id": self.id,
             "app_name": self.app_name,
             "app_description": self.app_description,
+            "system_type": self.system_type,
             "function_modules": [m.to_dict() if hasattr(m, 'to_dict') else m for m in self.function_modules],
             "hostname": self.hostname,
             "app_url": self.app_url,

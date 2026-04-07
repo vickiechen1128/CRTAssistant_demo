@@ -3,7 +3,7 @@
 使用 SQLAlchemy 实现领域仓储接口
 """
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Any
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -13,6 +13,7 @@ from ...domain.entities.plan import Plan
 from ...domain.value_objects.plan_status import PlanStatus
 from ...domain.value_objects.category import Category
 from ...domain.value_objects.priority import Priority
+from ...domain.value_objects.affected_module import AffectedModule
 from ...domain.repositories.plan_repository import PlanRepository
 from .models.plan_model import PlanModel, PlanInventoryLinkModel
 
@@ -90,7 +91,8 @@ class PlanRepositoryImpl(PlanRepository):
                 or_(
                     PlanModel.name.ilike(f"%{keyword}%"),
                     PlanModel.description.ilike(f"%{keyword}%"),
-                    PlanModel.data_tag.ilike(f"%{keyword}%")
+                    PlanModel.data_tag.ilike(f"%{keyword}%"),
+                    PlanModel.id.ilike(f"%{keyword}%")
                 )
             )
         
@@ -124,7 +126,7 @@ class PlanRepositoryImpl(PlanRepository):
         return self._session.query(PlanModel).filter_by(id=plan_id).first() is not None
     
     def get_next_sequence(self, date: datetime) -> int:
-        """获取下一个序号"""
+        """获取下一个序号（用于生成PlanID）"""
         date_prefix = f"PLAN-{date.strftime('%Y%m%d')}"
         
         # 查找当天最大的序号
@@ -158,6 +160,10 @@ class PlanRepositoryImpl(PlanRepository):
             status=plan.status.value,
             workflow_template_id=plan.workflow_template_id,
             inventory_action=plan.inventory_action,
+            related_inventory_ids=plan.inventory_ids,
+            affected_modules=[m.to_dict() for m in plan.affected_modules],
+            template_type=plan.template_type or plan.category.default_template_type,
+            approval_files_detail=plan.approval_files_detail,
             approval_files=[str(fid) for fid in plan.approval_files],
             created_by=plan.created_by,
             created_at=plan.created_at,
@@ -167,7 +173,6 @@ class PlanRepositoryImpl(PlanRepository):
     def _update_model(self, db_plan: PlanModel, plan: Plan) -> None:
         """更新数据库模型"""
         db_plan.name = plan.name
-        db_plan.category = plan.category.value
         db_plan.priority = plan.priority.level
         db_plan.description = plan.description
         db_plan.planned_start_time = plan.planned_start_time
@@ -177,17 +182,30 @@ class PlanRepositoryImpl(PlanRepository):
         db_plan.status = plan.status.value
         db_plan.workflow_template_id = plan.workflow_template_id
         db_plan.inventory_action = plan.inventory_action
+        db_plan.related_inventory_ids = plan.inventory_ids
+        db_plan.affected_modules = [m.to_dict() for m in plan.affected_modules]
+        db_plan.template_type = plan.template_type or db_plan.template_type
+        db_plan.approval_files_detail = plan.approval_files_detail
         db_plan.approval_files = [str(fid) for fid in plan.approval_files]
         db_plan.updated_at = plan.updated_at
     
     def _to_entity(self, db_plan: PlanModel) -> Plan:
         """数据库模型转领域对象"""
-        # 获取台账ID列表
-        inventory_ids = [
-            link.inventory_id for link in db_plan.inventory_links
-        ] if db_plan.inventory_links else []
+        # 获取台账ID列表（优先使用JSON字段，否则从关联表获取）
+        inventory_ids = db_plan.related_inventory_ids or []
+        if not inventory_ids and db_plan.inventory_links:
+            inventory_ids = [link.inventory_id for link in db_plan.inventory_links]
         
-        # 转换文件ID
+        # 转换受影响功能模块
+        affected_modules = []
+        if db_plan.affected_modules:
+            for m_data in db_plan.affected_modules:
+                try:
+                    affected_modules.append(AffectedModule.from_dict(m_data))
+                except (ValueError, KeyError):
+                    continue
+        
+        # 转换文件ID（兼容性处理）
         approval_files = []
         if db_plan.approval_files:
             for fid in db_plan.approval_files:
@@ -211,6 +229,9 @@ class PlanRepositoryImpl(PlanRepository):
             workflow_template_id=db_plan.workflow_template_id,
             inventory_ids=inventory_ids,
             inventory_action=db_plan.inventory_action,
+            affected_modules=affected_modules,
+            template_type=db_plan.template_type,
+            approval_files_detail=db_plan.approval_files_detail or [],
             approval_files=approval_files,
             created_by=db_plan.created_by,
             created_at=db_plan.created_at,

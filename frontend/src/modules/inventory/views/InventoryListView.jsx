@@ -147,6 +147,15 @@ const InventoryListView = () => {
   // 应用系统表格列
   const applicationColumns = [
     {
+      title: '应用ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 280,
+      render: (id) => (
+        <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#666' }}>{id}</span>
+      ),
+    },
+    {
       title: '应用名称',
       dataIndex: 'app_name',
       key: 'app_name',

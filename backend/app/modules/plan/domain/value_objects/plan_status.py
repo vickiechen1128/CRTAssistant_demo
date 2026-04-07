@@ -73,11 +73,24 @@ class PlanStatus:
     
     @property
     def is_cancellable(self) -> bool:
-        return self.value in {"DRAFT", "PENDING", "IN_PROGRESS"}
+        # PRD v3.1: IN_PROGRESS 状态不允许取消
+        return self.value in {"DRAFT", "PENDING"}
     
     @property
     def is_startable(self) -> bool:
         return self.value in {"DRAFT", "PENDING"}
+    
+    @property
+    def label(self) -> str:
+        """获取状态标签"""
+        mapping = {
+            "DRAFT": "草稿",
+            "PENDING": "待确认",
+            "IN_PROGRESS": "执行中",
+            "COMPLETED": "已完成",
+            "CANCELLED": "已取消",
+        }
+        return mapping.get(self.value, self.value)
     
     def __str__(self) -> str:
         return self.value

@@ -4,7 +4,7 @@
 """
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 from uuid import UUID, uuid4
 
 from ..value_objects.plan_id import PlanId
@@ -13,11 +13,13 @@ from ..value_objects.plan_status import PlanStatus
 from ..value_objects.category import Category
 from ..value_objects.priority import Priority
 from ..value_objects.template_type import TemplateType
+from ..value_objects.affected_module import AffectedModule
 from ..events.plan_events import (
     PlanCreatedEvent,
     PlanStatusChangedEvent,
     PlanInventoryLinkedEvent,
-    PlanDeletedEvent
+    PlanDeletedEvent,
+    PlanCompletedEvent,
 )
 
 
@@ -29,8 +31,9 @@ class Plan:
     核心职责：
     1. 维护计划基本信息和状态
     2. 管理台账关联关系
-    3. 执行状态流转验证
-    4. 生成领域事件
+    3. 记录受影响功能模块
+    4. 执行状态流转验证
+    5. 生成领域事件
     """
     # 标识
     id: str
@@ -56,6 +59,15 @@ class Plan:
     inventory_ids: List[str] = field(default_factory=list)
     inventory_action: Optional[str] = None
     
+    # 受影响功能模块列表
+    affected_modules: List[AffectedModule] = field(default_factory=list)
+    
+    # 审批材料详细信息（JSON列表）
+    approval_files_detail: List[Dict[str, Any]] = field(default_factory=list)
+    
+    # 工作流模板类型（根据分类自动确定）
+    template_type: Optional[str] = None
+    
     # 审计信息
     created_by: str = ""
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -64,7 +76,7 @@ class Plan:
     # 领域事件（临时存储，用于跨层通信）
     _domain_events: List[Any] = field(default_factory=list, repr=False)
     
-    # 文件关联
+    # 文件关联（兼容性保留）
     approval_files: List[UUID] = field(default_factory=list)
     
     @classmethod
@@ -78,10 +90,13 @@ class Plan:
         description: Optional[str] = None,
         planned_start_time: Optional[datetime] = None,
         planned_end_time: Optional[datetime] = None,
-        workflow_template_id: Optional[str] = None
+        workflow_template_id: Optional[str] = None,
+        affected_modules: Optional[List[AffectedModule]] = None,
+        approval_files_detail: Optional[List[Dict[str, Any]]] = None,
+        template_type: Optional[str] = None,
     ) -> "Plan":
         """工厂方法：创建新计划"""
-        # 生成ID
+        # 生成ID (格式: PLAN-YYYYMMDD-XXX)
         plan_id = PlanId.generate(datetime.utcnow(), 1).value
         
         # 确定初始状态
@@ -89,6 +104,9 @@ class Plan:
         
         # 确定台账操作类型
         inventory_action = category.inventory_action
+        
+        # 确定模板类型
+        template_type = template_type or TemplateType.from_category(category.value).value
         
         plan = cls(
             id=plan_id,
@@ -102,6 +120,9 @@ class Plan:
             status=initial_status,
             workflow_template_id=workflow_template_id,
             inventory_action=inventory_action,
+            affected_modules=affected_modules or [],
+            approval_files_detail=approval_files_detail or [],
+            template_type=template_type,
             created_by=created_by,
         )
         
@@ -112,7 +133,8 @@ class Plan:
             category=category.value,
             priority=str(priority),
             status=initial_status.value,
-            created_by=created_by
+            created_by=created_by,
+            template_type=template_type,
         ))
         
         return plan
@@ -123,7 +145,8 @@ class Plan:
         description: Optional[str] = None,
         planned_start_time: Optional[datetime] = None,
         planned_end_time: Optional[datetime] = None,
-        priority: Optional[Priority] = None
+        priority: Optional[Priority] = None,
+        affected_modules: Optional[List[AffectedModule]] = None,
     ) -> None:
         """更新计划信息（仅草稿状态可编辑）"""
         if not self.status.is_editable:
@@ -145,6 +168,8 @@ class Plan:
             # 如果从P0变为非P0，状态改为DRAFT
             elif not priority.is_p0 and self.status.value == "PENDING":
                 self._change_status(PlanStatus.draft())
+        if affected_modules is not None:
+            self.affected_modules = affected_modules
         
         self.updated_at = datetime.utcnow()
     
@@ -173,6 +198,16 @@ class Plan:
         old_status = self.status
         self._change_status(PlanStatus.completed())
         self.actual_end_time = datetime.utcnow()
+        
+        # 发布完成事件（触发台账更新和生命周期日志生成）
+        self._domain_events.append(PlanCompletedEvent(
+            plan_id=self.id,
+            plan_name=self.name,
+            category=self.category.value,
+            affected_modules=[m.to_dict() for m in self.affected_modules],
+            inventory_ids=self.inventory_ids,
+            completed_by=completed_by,
+        ))
         
         self._domain_events.append(PlanStatusChangedEvent(
             plan_id=self.id,
@@ -212,17 +247,36 @@ class Plan:
             linked_by=linked_by
         ))
     
-    def add_approval_file(self, file_id: UUID) -> None:
-        """添加审批材料"""
-        if file_id not in self.approval_files:
-            self.approval_files.append(file_id)
+    def add_affected_module(self, module: AffectedModule) -> None:
+        """添加受影响的功能模块"""
+        self.affected_modules.append(module)
+        self.updated_at = datetime.utcnow()
+    
+    def update_affected_modules(self, modules: List[AffectedModule]) -> None:
+        """更新受影响的功能模块列表"""
+        self.affected_modules = modules
+        self.updated_at = datetime.utcnow()
+    
+    def add_approval_file(self, file_detail: Dict[str, Any]) -> None:
+        """添加审批材料（详细格式）"""
+        # 检查是否已存在
+        existing_urls = {f.get("file_url") for f in self.approval_files_detail}
+        if file_detail.get("file_url") not in existing_urls:
+            self.approval_files_detail.append(file_detail)
+            # 同时更新兼容性字段
+            if "file_id" in file_detail:
+                file_id = UUID(file_detail["file_id"]) if isinstance(file_detail["file_id"], str) else file_detail["file_id"]
+                if file_id not in self.approval_files:
+                    self.approval_files.append(file_id)
             self.updated_at = datetime.utcnow()
     
-    def remove_approval_file(self, file_id: UUID) -> None:
+    def remove_approval_file(self, file_url: str) -> None:
         """移除审批材料"""
-        if file_id in self.approval_files:
-            self.approval_files.remove(file_id)
-            self.updated_at = datetime.utcnow()
+        self.approval_files_detail = [
+            f for f in self.approval_files_detail 
+            if f.get("file_url") != file_url
+        ]
+        self.updated_at = datetime.utcnow()
     
     def _change_status(self, new_status: PlanStatus) -> None:
         """内部方法：改变状态"""
@@ -244,9 +298,9 @@ class Plan:
         return events
     
     @property
-    def template_type(self) -> TemplateType:
-        """获取工作流模板类型"""
-        return TemplateType.from_category(self.category.value)
+    def template_type_value(self) -> str:
+        """获取工作流模板类型值"""
+        return self.template_type or TemplateType.from_category(self.category.value).value
     
     @property
     def is_overdue(self) -> bool:
@@ -255,6 +309,11 @@ class Plan:
             return False
         return datetime.utcnow() > self.planned_end_time
     
+    @property
+    def affected_modules_count(self) -> int:
+        """受影响功能模块数量"""
+        return len(self.affected_modules)
+    
     def to_dict(self) -> dict:
         """转换为字典（用于序列化）"""
         return {
@@ -262,19 +321,24 @@ class Plan:
             "data_tag": self.data_tag,
             "name": self.name,
             "category": self.category.value,
+            "category_label": self.category.label,
             "priority": str(self.priority),
             "status": self.status.value,
+            "status_label": self.status.label,
             "description": self.description,
             "planned_start_time": self.planned_start_time.isoformat() if self.planned_start_time else None,
             "planned_end_time": self.planned_end_time.isoformat() if self.planned_end_time else None,
             "actual_start_time": self.actual_start_time.isoformat() if self.actual_start_time else None,
             "actual_end_time": self.actual_end_time.isoformat() if self.actual_end_time else None,
             "workflow_template_id": self.workflow_template_id,
+            "template_type": self.template_type_value,
             "inventory_ids": self.inventory_ids,
             "inventory_action": self.inventory_action,
-            "approval_files": [str(fid) for fid in self.approval_files],
+            "affected_modules": [m.to_dict() for m in self.affected_modules],
+            "affected_modules_count": self.affected_modules_count,
+            "approval_files": self.approval_files_detail,
             "created_by": self.created_by,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            "is_overdue": self.is_overdue
+            "is_overdue": self.is_overdue,
         }

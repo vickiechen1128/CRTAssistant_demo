@@ -10,6 +10,8 @@ import { Spin } from 'antd';
 import { planRoutes } from '../../modules/plan';
 // 导入 Inventory 模块路由
 import { inventoryRoutes } from '../../modules/inventory';
+// 导入 SOP 模板模块路由
+import { sopTemplateRoutes } from '../../modules/sop_template';
 
 // 懒加载页面组件
 const MainLayout = React.lazy(() => import('../components/Layout/MainLayout'));
@@ -97,6 +99,8 @@ export const router = createBrowserRouter([
       ...planRoutes,
       // 🎯 显式挂载 Inventory 模块路由
       ...inventoryRoutes,
+      // 🎯 显式挂载 SOP 模板模块路由
+      ...sopTemplateRoutes,
     ],
   },
 ]);

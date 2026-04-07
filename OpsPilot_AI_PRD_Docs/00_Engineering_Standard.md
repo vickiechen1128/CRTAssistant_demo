@@ -210,7 +210,27 @@ const useWorkflowStore = create((set, get) => ({
 
 ## 4. 避坑指南
 
-### 4.1 路由冲突
+### 4.1 路由管理规范
+
+#### 4.1.1 路由路径格式
+**强制规则**: 所有路由路径必须以 `/` 开头（绝对路径）
+```jsx
+// ❌ 错误 - 相对路径
+{ path: 'sop-templates', element: <SOPTemplateList /> }
+
+// ✅ 正确 - 绝对路径
+{ path: '/sop-templates', element: <SOPTemplateList /> }
+```
+
+#### 4.1.2 路由配置检查清单
+新增页面时必须完成以下检查：
+- [ ] 页面组件已创建
+- [ ] 路由配置已添加（router.jsx）
+- [ ] 导航代码中的路径与路由配置一致
+- [ ] 路径以 `/` 开头
+- [ ] 动态参数使用 `:id` 格式
+
+#### 4.1.3 路由冲突
 **问题**: `/:id` 与 `/new` 冲突，访问 `/new` 被解析为 `id="new"`
 
 **解决**: 静态路由放动态路由之前
@@ -219,16 +239,67 @@ const useWorkflowStore = create((set, get) => ({
 <Route path="/admission-tasks/:id" element={<TaskDetail />} />
 ```
 
-### 4.2 文件上传安全
+### 4.2 前后端数据契约规范
+
+#### 4.2.1 API 数据格式对齐
+**强制规则**: 前端提交数据必须与后端 Schema 完全一致
+
+**后端 Schema 定义**（以 Plan 为例）：
+```python
+class CreatePlanSchema(BaseModel):
+    name: str
+    category: str
+    priority: str
+    description: Optional[str]
+    planned_start_time: Optional[datetime]
+    planned_end_time: Optional[datetime]
+```
+
+**前端数据组装**（必须对齐）：
+```javascript
+// ✅ 正确 - 扁平化结构，字段名一致
+const submitData = {
+  name: values.name,
+  category: values.category,
+  priority: values.priority,
+  description: values.description,
+  planned_start_time: values.planned_start_time?.toISOString(),
+  planned_end_time: values.planned_end_time?.toISOString(),
+};
+
+// ❌ 错误 - 嵌套结构，字段名不一致
+const submitData = {
+  basic_info: { name, category, ... },  // 后端不识别
+  approval_files: [...],                // 后端不识别
+};
+```
+
+#### 4.2.2 新增 API 接口检查清单
+- [ ] 后端已定义 Pydantic Schema
+- [ ] 前端已确认 Schema 字段和类型
+- [ ] 前端提交数据结构与 Schema 一致
+- [ ] 日期时间字段使用 ISO 8601 格式
+- [ ] 枚举值与后端定义完全一致
+
+### 4.3 文件上传安全
 - 白名单: .xlsx, .xls, .doc, .docx, .pdf, .txt, .sh, .py
 - 大小限制: 50MB
 - 存储路径: `uploads/2024/03/20/xxx.pdf` (按日期分目录，Hash命名)
 
-### 4.3 脚本执行
+### 4.4 脚本执行
 - 异步执行（Celery）
 - 默认超时: 300秒
 - SSH失败自动重试3次
 - 使用只读用户执行检查脚本
+
+### 4.5 常见 HTTP 状态码处理规范
+
+| 状态码 | 含义 | 前端处理 |
+|-------|------|---------|
+| 400 | 请求参数错误 | 显示具体字段错误提示 |
+| 422 | 验证失败 | 根据后端返回的 detail 显示错误 |
+| 404 | 资源不存在 | 检查路由配置或资源ID |
+| 500 | 服务器错误 | 提示用户稍后重试，记录日志 |
 
 ---
 

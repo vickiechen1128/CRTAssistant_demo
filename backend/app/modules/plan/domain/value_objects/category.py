@@ -96,6 +96,30 @@ class Category:
         }
         return mapping[self.value]
     
+    @property
+    def label(self) -> str:
+        """获取分类标签"""
+        mapping = {
+            "new_system": "新系统上线",
+            "new_feature": "新功能上线",
+            "func_change": "功能变更",
+            "arch_change": "架构变更",
+            "security_check": "安全检查",
+        }
+        return mapping.get(self.value, self.value)
+    
+    @property
+    def default_template_type(self) -> str:
+        """获取默认工作流模板类型"""
+        mapping = {
+            "new_system": "new_system",
+            "new_feature": "new_feature",
+            "func_change": "func_change",
+            "arch_change": "arch_change",
+            "security_check": "security",
+        }
+        return mapping.get(self.value, "default")
+    
     def __str__(self) -> str:
         return self.value
     

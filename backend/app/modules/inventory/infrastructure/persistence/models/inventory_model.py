@@ -22,6 +22,7 @@ class ApplicationModel(Base):
     # 基本信息
     app_name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, index=True)
     app_description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    system_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, default='web')
     function_modules: Mapped[List[dict]] = mapped_column(JSON, default=list)
     
     # 部署信息
@@ -62,6 +63,23 @@ class ApplicationModel(Base):
         back_populates='application',
         cascade='all, delete-orphan',
         lazy='dynamic'
+    )
+    
+    # 功能模块（新的独立实体关系）
+    function_modules_new = relationship(
+        'FunctionModuleModel',
+        back_populates='application',
+        cascade='all, delete-orphan',
+        lazy='selectin'
+    )
+    
+    # 生命周期日志
+    lifecycle_logs = relationship(
+        'LifecycleLogModel',
+        back_populates='application',
+        cascade='all, delete-orphan',
+        lazy='dynamic',
+        order_by='desc(LifecycleLogModel.operation_time)'
     )
     
     def __repr__(self) -> str:

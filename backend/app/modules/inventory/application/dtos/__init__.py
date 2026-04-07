@@ -22,8 +22,27 @@ from .inventory_dtos import (
     PlanLinkDTO,
     PaginationDTO,
 )
+from .function_module_dtos import (
+    CreateFunctionModuleDTO,
+    UpdateFunctionModuleDTO,
+    UpdateModuleStatusDTO,
+    LaunchModuleDTO,
+    FunctionModuleResponseDTO,
+    FunctionModuleTreeDTO,
+    FunctionModuleVersionHistoryDTO,
+)
+from .lifecycle_log_dtos import (
+    CreateLifecycleLogDTO,
+    LifecycleLogResponseDTO,
+    TimelineItemDTO,
+    TimelineResponseDTO,
+    TimelineFilterDTO,
+    LogTypeInfoDTO,
+    LogStatisticsDTO,
+)
 
 __all__ = [
+    # 原有DTOs
     'CreateApplicationDTO',
     'UpdateApplicationDTO',
     'ApplicationResponseDTO',
@@ -38,4 +57,20 @@ __all__ = [
     'InventorySummaryDTO',
     'PlanLinkDTO',
     'PaginationDTO',
+    # 功能模块DTOs
+    'CreateFunctionModuleDTO',
+    'UpdateFunctionModuleDTO',
+    'UpdateModuleStatusDTO',
+    'LaunchModuleDTO',
+    'FunctionModuleResponseDTO',
+    'FunctionModuleTreeDTO',
+    'FunctionModuleVersionHistoryDTO',
+    # 生命周期日志DTOs
+    'CreateLifecycleLogDTO',
+    'LifecycleLogResponseDTO',
+    'TimelineItemDTO',
+    'TimelineResponseDTO',
+    'TimelineFilterDTO',
+    'LogTypeInfoDTO',
+    'LogStatisticsDTO',
 ]

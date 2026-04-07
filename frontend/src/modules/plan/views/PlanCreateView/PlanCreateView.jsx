@@ -1,57 +1,43 @@
 /**
  * PlanCreateView 组件
- * 创建计划页面
+ * 计划创建页面 - 使用多步骤表单
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, message, Space, Typography } from 'antd';
+import { Card, Button, Typography } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { usePlanStore } from '../../store';
-import PlanForm from '../../components/PlanForm';
+import PlanStepsForm from '../../components/PlanStepsForm';
 
 const { Title } = Typography;
 
 /**
- * PlanCreateView 组件
+ * 计划创建页面
  */
 const PlanCreateView = () => {
   const navigate = useNavigate();
-  const { createNewPlan, submitting } = usePlanStore();
+  const { resetCreationStep } = usePlanStore();
 
-  // 处理提交
-  const handleSubmit = async (values) => {
-    try {
-      await createNewPlan(values);
-      message.success('计划创建成功');
-      navigate('/plans');
-    } catch (error) {
-      message.error('创建失败：' + (error.message || '未知错误'));
-    }
-  };
-
-  // 处理取消
-  const handleCancel = () => {
-    navigate('/plans');
-  };
+  // 页面加载时重置创建状态
+  useEffect(() => {
+    resetCreationStep();
+  }, []);
 
   return (
     <div>
       <Card style={{ marginBottom: 16 }}>
-        <Space>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <Button 
             icon={<ArrowLeftOutlined />} 
             onClick={() => navigate('/plans')}
           >
-            返回
+            返回列表
           </Button>
           <Title level={4} style={{ margin: 0 }}>创建计划</Title>
-        </Space>
+        </div>
       </Card>
-      <PlanForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        loading={submitting}
-      />
+
+      <PlanStepsForm />
     </div>
   );
 };

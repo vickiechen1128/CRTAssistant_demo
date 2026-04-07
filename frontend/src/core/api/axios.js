@@ -7,7 +7,9 @@ import { message } from 'antd';
 
 // 创建 axios 实例
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1',
+  // 使用相对路径，让请求通过 Vite 代理服务器转发到后端
+  // 避免 CORS 跨域问题
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

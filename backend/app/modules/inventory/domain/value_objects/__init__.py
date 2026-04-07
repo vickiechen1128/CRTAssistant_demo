@@ -5,6 +5,8 @@ from .inventory_status import InventoryStatus, InventoryStatusEnum
 from .resource_type import ResourceType, ResourceTypeEnum
 from .account_type import AccountType, AccountTypeEnum
 from .permission_level import PermissionLevel, PermissionLevelEnum
+from .module_status import ModuleStatus as FunctionModuleStatus
+from .log_type import LogType
 
 __all__ = [
     'InventoryStatus',
@@ -15,4 +17,6 @@ __all__ = [
     'AccountTypeEnum',
     'PermissionLevel',
     'PermissionLevelEnum',
+    'FunctionModuleStatus',
+    'LogType',
 ]

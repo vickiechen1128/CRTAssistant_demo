@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.security import get_current_user_optional
+from app.core.response import success_response, error_response
 
 from ....application.inventory_service import InventoryService
 from ....application.dtos.inventory_dtos import (
@@ -98,7 +99,6 @@ def create_application(
 
 @router.get(
     "/applications",
-    response_model=PaginatedApplicationResponseSchema,
     summary="获取应用系统列表"
 )
 def list_applications(
@@ -110,14 +110,17 @@ def list_applications(
     current_user: Optional[dict] = Depends(get_current_user_optional)
 ):
     """获取应用系统列表（支持分页和筛选）"""
-    result = service.list_applications(status, keyword, page, size)
-    return {
-        "page": result.page,
-        "size": result.size,
-        "total": result.total,
-        "total_pages": result.total_pages,
-        "data": result.data
-    }
+    try:
+        result = service.list_applications(status, keyword, page, size)
+        return success_response({
+            "page": result.page,
+            "size": result.size,
+            "total": result.total,
+            "total_pages": result.total_pages,
+            "items": result.data
+        })
+    except Exception as e:
+        return error_response(str(e), "获取应用系统列表失败")
 
 
 @router.get(

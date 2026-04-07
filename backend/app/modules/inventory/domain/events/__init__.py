@@ -13,6 +13,12 @@ from .inventory_events import (
     AccountDeletedEvent,
     PlanLinkedEvent,
     PlanUnlinkedEvent,
+    FunctionModuleAddedEvent,
+    FunctionModuleUpdatedEvent,
+    FunctionModuleRemovedEvent,
+    FunctionModuleCreatedEvent,
+    FunctionModuleStatusChangedEvent,
+    FunctionModuleDeletedEvent,
 )
 
 __all__ = [
@@ -27,4 +33,10 @@ __all__ = [
     'AccountDeletedEvent',
     'PlanLinkedEvent',
     'PlanUnlinkedEvent',
+    'FunctionModuleAddedEvent',
+    'FunctionModuleUpdatedEvent',
+    'FunctionModuleRemovedEvent',
+    'FunctionModuleCreatedEvent',
+    'FunctionModuleStatusChangedEvent',
+    'FunctionModuleDeletedEvent',
 ]

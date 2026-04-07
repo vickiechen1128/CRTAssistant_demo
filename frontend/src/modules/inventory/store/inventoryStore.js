@@ -113,13 +113,17 @@ export const useInventoryStore = create((set, get) => ({
 
       const response = await getApplicationList(params);
 
+      // axios拦截器已处理响应格式，直接获取数据
+      // 后端返回: { success: true, data: { items: [...], total, page, size } }
+      // 拦截器处理后: { items: [...], total, page, size }
+      const responseData = response || {};
       set({
-        applications: response.data || [],
+        applications: responseData.items || [],
         pagination: {
-          current: response.page || 1,
-          pageSize: response.size || 20,
-          total: response.total || 0,
-          totalPages: response.total_pages || 0,
+          current: responseData.page || 1,
+          pageSize: responseData.size || 20,
+          total: responseData.total || 0,
+          totalPages: responseData.total_pages || 0,
         },
       });
 
@@ -230,13 +234,15 @@ export const useInventoryStore = create((set, get) => ({
 
       const response = await getCloudResourceList(params);
 
+      // axios拦截器已处理响应格式，直接获取数据
+      const responseData = response || {};
       set({
-        cloudResources: response.data || [],
+        cloudResources: responseData.items || [],
         pagination: {
-          current: response.page || 1,
-          pageSize: response.size || 20,
-          total: response.total || 0,
-          totalPages: response.total_pages || 0,
+          current: responseData.page || 1,
+          pageSize: responseData.size || 20,
+          total: responseData.total || 0,
+          totalPages: responseData.total_pages || 0,
         },
       });
 
@@ -334,13 +340,15 @@ export const useInventoryStore = create((set, get) => ({
 
       const response = await getAccountList(params);
 
+      // axios拦截器已处理响应格式，直接获取数据
+      const responseData = response || {};
       set({
-        accounts: response.data || [],
+        accounts: responseData.items || [],
         pagination: {
-          current: response.page || 1,
-          pageSize: response.size || 20,
-          total: response.total || 0,
-          totalPages: response.total_pages || 0,
+          current: responseData.page || 1,
+          pageSize: responseData.size || 20,
+          total: responseData.total || 0,
+          totalPages: responseData.total_pages || 0,
         },
       });
 

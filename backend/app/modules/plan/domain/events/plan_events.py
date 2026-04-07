@@ -32,6 +32,7 @@ class PlanCreatedEvent(DomainEvent):
     category: str = ""
     priority: str = ""
     status: str = ""
+    template_type: str = ""
     created_by: str = ""
     
     def __init__(self, **kwargs):
@@ -44,6 +45,7 @@ class PlanCreatedEvent(DomainEvent):
         self.category = kwargs.get('category', '')
         self.priority = kwargs.get('priority', '')
         self.status = kwargs.get('status', '')
+        self.template_type = kwargs.get('template_type', '')
         self.created_by = kwargs.get('created_by', '')
 
 
@@ -136,8 +138,12 @@ class PlanStartedEvent(DomainEvent):
 
 @dataclass
 class PlanCompletedEvent(DomainEvent):
-    """计划完成事件"""
+    """计划完成事件 - 触发台账更新和生命周期日志生成"""
     plan_id: str = ""
+    plan_name: str = ""
+    category: str = ""
+    affected_modules: List[dict] = None
+    inventory_ids: List[str] = None
     completed_by: str = ""
     completed_at: datetime = None
     
@@ -147,6 +153,10 @@ class PlanCompletedEvent(DomainEvent):
             aggregate_type='Plan'
         )
         self.plan_id = kwargs.get('plan_id', '')
+        self.plan_name = kwargs.get('plan_name', '')
+        self.category = kwargs.get('category', '')
+        self.affected_modules = kwargs.get('affected_modules', [])
+        self.inventory_ids = kwargs.get('inventory_ids', [])
         self.completed_by = kwargs.get('completed_by', '')
         self.completed_at = kwargs.get('completed_at', datetime.utcnow())
 

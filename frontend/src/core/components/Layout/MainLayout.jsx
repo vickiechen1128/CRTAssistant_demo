@@ -32,10 +32,11 @@ function MainLayout() {
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuthStore();
 
+  // TODO: 登录功能开发完成后启用
   // 未登录时重定向到登录页
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   // 顶部导航菜单项
   const navItems = [

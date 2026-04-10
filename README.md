@@ -96,19 +96,33 @@ CRTAssistant_demo/
 
 ## 快速开始
 
+### 环境要求
+
+- **Python**: 3.10+
+- **Node.js**: 18+
+- **npm**: 9+ 或 **pnpm**: 8+
+
 ### 1. 安装后端依赖
 
 ```bash
 cd backend
 
 # 创建虚拟环境（推荐）
-python -m venv venv
+# 方式一：使用 venv 目录
+python3 -m venv venv
+
+# 方式二：使用 .venv 目录（与 start.sh 脚本兼容）
+python3 -m venv .venv
 
 # 激活虚拟环境
 # macOS/Linux:
 source venv/bin/activate
+# 或
+source .venv/bin/activate
 # Windows:
 # venv\Scripts\activate
+# 或
+# .venv\Scripts\activate
 
 # 安装依赖
 pip install -r requirements.txt
@@ -119,17 +133,40 @@ pip install -r requirements.txt
 ```bash
 cd frontend
 
-# 使用 npm 或 pnpm
+# 使用 npm 安装依赖
 npm install
-# 或
+
+# 或使用 pnpm（更快）
 pnpm install
 ```
 
 ### 3. 启动开发服务器
 
+#### 方式一：一键启动（推荐）
+
+```bash
+# 在项目根目录执行
+./start.sh
+```
+
+此脚本会自动：
+- 检查 Python 和 Node.js 环境
+- 检查并安装前端依赖
+- 启动后端服务 (http://127.0.0.1:8000)
+- 启动前端服务 (http://127.0.0.1:5173)
+
+#### 方式二：分别启动（开发调试）
+
 **终端 1 - 启动后端:**
 ```bash
 cd backend
+
+# 激活虚拟环境
+source venv/bin/activate
+# 或
+source .venv/bin/activate
+
+# 启动服务
 python run.py
 ```
 后端运行在 http://127.0.0.1:8000

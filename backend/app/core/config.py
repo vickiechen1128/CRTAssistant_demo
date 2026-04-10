@@ -24,26 +24,36 @@ class Settings:
     DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
     
     # 数据库配置
-    DATABASE_URL: str = os.getenv(
+    _db_url = os.getenv(
         "DATABASE_URL",
         f"sqlite:///{Path(__file__).parent.parent.parent / 'data' / 'app.db'}"
     )
+    # 展开 ~ 为用户主目录
+    DATABASE_URL: str = os.path.expanduser(_db_url)
     
     # JWT配置
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
     ALGORITHM: str = "HS256"
     
-    # CORS配置
+    # CORS配置 - 支持本地开发和生产环境
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
+        # Serv00 生产环境域名（请替换为您的实际域名）
+        "https://your-frontend-domain.serv00.com",
+        "https://your-backend-domain.serv00.com",
     ]
     
     # 文件上传配置
-    UPLOAD_DIR: Path = Path(__file__).parent.parent.parent / "uploads"
+    _upload_dir = os.getenv("UPLOAD_DIR")
+    if _upload_dir:
+        # 展开 ~ 并转换为 Path
+        UPLOAD_DIR: Path = Path(os.path.expanduser(_upload_dir))
+    else:
+        UPLOAD_DIR: Path = Path(__file__).parent.parent.parent / "uploads"
     MAX_UPLOAD_SIZE: int = 50 * 1024 * 1024  # 50MB
     
     # 分页配置

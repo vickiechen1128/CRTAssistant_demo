@@ -1,9 +1,14 @@
 /**
  * 全局路由配置
  * 显式注册各模块路由
+ * 
+ * TODO: 登录功能待开发
+ * - 当前版本暂不启用登录验证
+ * - 所有页面均可直接访问
+ * - 未来需要登录时，取消注释 ProtectedRoute 相关代码
  */
-import React, { Suspense, useEffect } from 'react';
-import { createBrowserRouter, Navigate, Outlet, useNavigate } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { Spin } from 'antd';
 
 // 导入 Plan 模块路由
@@ -28,38 +33,31 @@ const PageLoading = () => (
   </div>
 );
 
-// 路由守卫组件
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
+// TODO: 登录功能开发完成后启用
+// 路由守卫组件 - 暂时禁用，所有页面均可访问
+// const ProtectedRoute = ({ children }) => {
+//   const token = localStorage.getItem('token');
+//   if (!token) {
+//     return <Navigate to="/login" replace />;
+//   }
+//   return children;
+// };
 
-// 登录页面组件 - 自动设置 token 并跳转（临时方案）
-const LoginPage = () => {
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    // 临时方案：自动设置 token 并跳转到计划列表
-    localStorage.setItem('token', 'demo-token');
-    navigate('/plans', { replace: true });
-  }, [navigate]);
-  
-  return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh',
-      flexDirection: 'column'
-    }}>
-      <Spin size="large" />
-      <p style={{ marginTop: 16 }}>正在登录...</p>
-    </div>
-  );
-};
+// TODO: 登录页面开发完成后启用
+// 临时登录页面 - 仅作为占位
+const LoginPage = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh',
+    flexDirection: 'column'
+  }}>
+    <h1>登录页面</h1>
+    <p>此功能正在开发中...</p>
+    <a href="/plans">直接进入应用</a>
+  </div>
+);
 
 // 创建路由配置
 export const router = createBrowserRouter([
@@ -74,13 +72,14 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: (
-      <ProtectedRoute>
-        <Suspense fallback={<PageLoading />}>
-          <MainLayout>
-            <Outlet />
-          </MainLayout>
-        </Suspense>
-      </ProtectedRoute>
+      // TODO: 登录功能完成后启用 ProtectedRoute
+      // <ProtectedRoute>
+      <Suspense fallback={<PageLoading />}>
+        <MainLayout>
+          <Outlet />
+        </MainLayout>
+      </Suspense>
+      // </ProtectedRoute>
     ),
     children: [
       {

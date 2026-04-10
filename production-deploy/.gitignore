@@ -1,0 +1,21 @@
+# 运行时生成的文件
+frontend/dist/*
+!frontend/dist/.gitkeep
+backend/VERSION
+!backend/VERSION
+
+# 版本历史（保留目录，忽略生成的 zip 文件）
+versions/*.zip
+.current_version
+
+# 部署包
+*.zip
+
+# 日志
+logs/
+*.log
+
+# 缓存
+__pycache__/
+*.pyc
+.DS_Store

@@ -23,6 +23,12 @@ app = FastAPI(
     version=settings.APP_VERSION
 )
 
+# 健康检查（放在最前面，避免被其他路由捕获）
+@app.get("/health")
+def health_check():
+    """健康检查接口"""
+    return {"status": "ok", "message": "服务运行正常"}
+
 # 配置CORS
 app.add_middleware(
     CORSMiddleware,
@@ -48,9 +54,37 @@ uploads_dir = os.path.join(os.path.dirname(__file__), "..", "uploads")
 if os.path.exists(uploads_dir):
     app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
+# 挂载前端静态文件目录（生产环境）
+# 尝试多个可能的路径
+frontend_dist_dir = os.path.join(os.path.dirname(__file__), "..", "..", "production-deploy", "frontend", "dist")
+if not os.path.exists(frontend_dist_dir):
+    # 部署后的路径：~/opspilot/frontend_dist
+    frontend_dist_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend_dist")
+if not os.path.exists(frontend_dist_dir):
+    # 备用路径：~/opspilot/frontend/dist
+    frontend_dist_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend", "dist")
 
-# 健康检查
-@app.get("/health")
-def health_check():
-    """健康检查接口"""
-    return {"status": "ok", "message": "服务运行正常"}
+if os.path.exists(frontend_dist_dir):
+    from fastapi.responses import FileResponse
+    
+    # 挂载静态资源目录
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist_dir, "assets")), name="assets")
+    
+    # 根路径返回 index.html
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(os.path.join(frontend_dist_dir, "index.html"))
+    
+    # 处理前端路由（返回 index.html 让前端路由处理）
+    @app.get("/{path:path}")
+    async def serve_spa(path: str):
+        # API 路径不走这里（已经被前面的路由处理）
+        # 检查是否是静态文件请求
+        file_path = os.path.join(frontend_dist_dir, path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # 否则返回 index.html
+        return FileResponse(os.path.join(frontend_dist_dir, "index.html"))
+
+
+

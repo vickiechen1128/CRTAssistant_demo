@@ -5,6 +5,7 @@
 ## 核心定位
 
 **OpsPilot** 帮助甲方运维经理：
+
 1. **准入验收**：制定标准化验收标准，系统性核验乙方交付物
 2. **审计留痕**：完整记录验收过程（标准制定→交付物提交→审核结论）
 
@@ -13,6 +14,7 @@
 ## 技术栈
 
 ### 后端 (Backend)
+
 - **FastAPI** - 高性能异步 Web 框架
 - **SQLAlchemy** - ORM 框架
 - **SQLite** - 开发环境数据库（可迁移至 PostgreSQL/MySQL）
@@ -20,6 +22,7 @@
 - **Uvicorn** - ASGI 服务器
 
 ### 前端 (Frontend)
+
 - **React 18** - UI 框架
 - **Vite** - 构建工具
 - **Ant Design** - UI 组件库
@@ -78,21 +81,31 @@ CRTAssistant_demo/
 │   ├── 00_Global_Architecture.md     # 全局架构
 │   ├── 00_Engineering_Standard.md    # 工程规范
 │   └── Modules/                      # 模块详细设计
+├── .kimi/                            # Kimi Code CLI 配置
+│   ├── engineering/                  # 工程化文档
+│   │   └── AGENTS.md                 # AI 编程助手指导文档
+│   ├── skills/                       # 自动化 Skills
+│   │   ├── api-integration-test/     # API 联调测试 Skill
+│   │   ├── generate-ddd-scaffold/    # DDD 代码生成 Skill
+│   │   ├── prd-to-code-checklist/    # PRD 转开发清单 Skill
+│   │   └── sync-module-prd/          # 模块 PRD 同步校验 Skill
+│   └── workflow/                     # 工作流文档
+│       └── writeup.md                # 自动化工作流实践报告
 └── data/                             # SQLite 数据库目录
 ```
 
 ## 业务模块
 
-| 模块 | 名称 | 核心职责 | 状态 |
-|------|------|----------|------|
-| Module_01 | Plan Management | 管理运维计划的完整生命周期 | ✅ 已完成 |
-| Module_02 | Inventory Management | 管理应用系统/云服务/账号三类台账 | ✅ 已完成 |
-| Module_03 | SOP Template Engine | 管理SOP模板、审核矩阵、驱动工作项生成 | ✅ 已完成 |
-| Module_04 | Workflow Execution | 执行工作流，管理任务状态流转 | 🚧 待开发 |
-| Module_05 | Knowledge Base | 管理企业运维知识资产 | 🚧 待开发 |
-| Module_06 | Verification Engine | 执行核验逻辑（人工/脚本/AI） | 🚧 待开发 |
-| Module_07 | File & Deliverable | 管理交付物文件 | 🚧 待开发 |
-| Module_08 | Notification Center | 跨模块消息推送 | 🚧 待开发 |
+| 模块         | 名称                   | 核心职责                 | 状态     |
+| ---------- | -------------------- | -------------------- | ------ |
+| Module\_01 | Plan Management      | 管理运维计划的完整生命周期        | ✅ 已完成  |
+| Module\_02 | Inventory Management | 管理应用系统/云服务/账号三类台账    | ✅ 已完成  |
+| Module\_03 | SOP Template Engine  | 管理SOP模板、审核矩阵、驱动工作项生成 | ✅ 已完成  |
+| Module\_04 | Workflow Execution   | 执行工作流，管理任务状态流转       | 🚧 待开发 |
+| Module\_05 | Knowledge Base       | 管理企业运维知识资产           | 🚧 待开发 |
+| Module\_06 | Verification Engine  | 执行核验逻辑（人工/脚本/AI）     | 🚧 待开发 |
+| Module\_07 | File & Deliverable   | 管理交付物文件              | 🚧 待开发 |
+| Module\_08 | Notification Center  | 跨模块消息推送              | 🚧 待开发 |
 
 ## 快速开始
 
@@ -150,14 +163,16 @@ pnpm install
 ```
 
 此脚本会自动：
+
 - 检查 Python 和 Node.js 环境
 - 检查并安装前端依赖
-- 启动后端服务 (http://127.0.0.1:8000)
-- 启动前端服务 (http://127.0.0.1:5173)
+- 启动后端服务 (<http://127.0.0.1:8000>)
+- 启动前端服务 (<http://127.0.0.1:5173>)
 
 #### 方式二：分别启动（开发调试）
 
 **终端 1 - 启动后端:**
+
 ```bash
 cd backend
 
@@ -169,69 +184,45 @@ source .venv/bin/activate
 # 启动服务
 python run.py
 ```
-后端运行在 http://127.0.0.1:8000
+
+后端运行在 <http://127.0.0.1:8000>
 
 **终端 2 - 启动前端:**
+
 ```bash
 cd frontend
 npm run dev
 ```
-前端运行在 http://127.0.0.1:5173
+
+前端运行在 <http://127.0.0.1:5173>
 
 ### 4. 访问应用
 
-- **前端页面**: http://localhost:5173
-- **API 文档**: http://127.0.0.1:8000/docs
-- **API 基础地址**: http://127.0.0.1:8000/api/v1
+- **前端页面**: <http://localhost:5173>
+- **API 文档**: <http://127.0.0.1:8000/docs>
+- **API 基础地址**: <http://127.0.0.1:8000/api/v1>
 
 ## API 接口概览
 
-### 计划管理 (Plan)
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/v1/plans` | 创建计划 |
-| GET | `/api/v1/plans` | 查询计划列表 |
-| GET | `/api/v1/plans/{id}` | 获取计划详情 |
-| PUT | `/api/v1/plans/{id}` | 更新计划 |
-| DELETE | `/api/v1/plans/{id}` | 删除计划 |
-| POST | `/api/v1/plans/{id}/start` | 启动计划 |
-| POST | `/api/v1/plans/{id}/complete` | 完成计划 |
-| POST | `/api/v1/plans/{id}/cancel` | 取消计划 |
-| POST | `/api/v1/plans/{id}/inventory` | 关联台账 |
+完整的 API 接口定义请参考 **工程规范文档** 或启动后端后访问 `/docs` 查看 Swagger 文档。
 
-### 台账管理 (Inventory)
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/v1/inventories` | 查询台账列表 |
-| POST | `/api/v1/inventories` | 创建台账 |
-| GET | `/api/v1/inventories/{id}` | 获取台账详情 |
-| PUT | `/api/v1/inventories/{id}` | 更新台账 |
-| DELETE | `/api/v1/inventories/{id}` | 删除台账 |
+### 核心模块 API
 
-### SOP 模板 (SOP Template)
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/v1/sop-templates` | 创建模板 |
-| GET | `/api/v1/sop-templates` | 查询模板列表 |
-| GET | `/api/v1/sop-templates/{id}` | 获取模板详情 |
-| PUT | `/api/v1/sop-templates/{id}` | 更新模板 |
-| DELETE | `/api/v1/sop-templates/{id}` | 删除模板 |
-| POST | `/api/v1/sop-templates/{id}/publish` | 发布模板 |
-| POST | `/api/v1/sop-templates/{id}/deprecate` | 弃用模板 |
-| POST | `/api/v1/sop-templates/{id}/clone` | 克隆模板 |
-| POST | `/api/v1/sop-templates/{id}/instantiate` | 实例化模板 |
+| 模块     | 基础路径                    | 说明                |
+| ------ | ----------------------- | ----------------- |
+| 计划管理   | `/api/v1/plans`         | 运维计划 CRUD 及生命周期管理 |
+| 台账管理   | `/api/v1/inventories`   | 应用系统/云服务/账户台账管理   |
+| SOP 模板 | `/api/v1/sop-templates` | 模板管理、发布、实例化       |
 
-### 审核矩阵 (Audit Matrix)
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/v1/audit-matrix-configs` | 创建审核矩阵 |
-| GET | `/api/v1/audit-matrix-configs` | 查询列表 |
-| GET | `/api/v1/audit-matrix-configs/{id}` | 获取详情 |
-| PUT | `/api/v1/audit-matrix-configs/{id}` | 更新配置 |
-| DELETE | `/api/v1/audit-matrix-configs/{id}` | 删除配置 |
-| POST | `/api/v1/audit-matrix-configs/{id}/rules` | 添加规则 |
-| PUT | `/api/v1/audit-matrix-configs/{id}/rules/{rule_id}` | 更新规则 |
-| DELETE | `/api/v1/audit-matrix-configs/{id}/rules/{rule_id}` | 删除规则 |
+### 开发必读
+
+**⚠️ 重要**: 开发前请务必阅读 [工程规范文档](OpsPilot_AI_PRD_Docs/00_Engineering_Standard.md)，其中包含：
+
+- 完整的 API 路由表
+- 前后端数据契约规范
+- 路由管理规范（避坑指南）
+- 关键实现片段（密码安全、JWT、状态管理等）
+- HTTP 状态码处理规范
 
 ## 开发指南
 
@@ -254,6 +245,7 @@ npm run dev
 ```
 
 **分层职责：**
+
 - **Domain 层**：核心业务逻辑，不依赖其他层
 - **Application 层**：协调领域对象完成用例
 - **Infrastructure 层**：技术实现细节
@@ -262,19 +254,20 @@ npm run dev
 ### 添加新模块步骤
 
 1. **创建模块目录结构：**
+
 ```bash
 mkdir -p backend/app/modules/{module_name}/{domain,application,infrastructure,interfaces}
 ```
 
-2. **按 DDD 分层实现：**
+1. **按 DDD 分层实现：**
    - `domain/entities/` - 定义领域实体
    - `domain/value_objects/` - 定义值对象
    - `domain/repositories/` - 定义仓储接口
    - `application/` - 实现应用服务
    - `infrastructure/persistence/` - 实现仓储
    - `interfaces/api/routes/` - 定义 API 路由
+2. **注册路由**（`backend/app/main.py`）：
 
-3. **注册路由**（`backend/app/main.py`）：
 ```python
 from app.modules.{module_name}.interfaces.api.routes import router as new_router
 app.include_router(new_router, prefix="/api/v1")
@@ -293,76 +286,86 @@ class PlanCreatedEvent:
     occurred_at: datetime = datetime.utcnow()
 ```
 
-## 核心概念
+## 业务模型
 
-### 计划类型与模板映射
-
-| 计划分类 | 模板类型 | 台账操作 | 检查项 |
-|----------|----------|----------|--------|
-| 新系统上线 | new_system | 新增台账 | 4项：基础资源/台账/安全/监控 |
-| 新功能上线 | new_feature | 编辑台账 | 2项：台账/监控 |
-| 功能变更 | func_change | 勾选台账 | 2项：台账/监控 |
-| 架构变更 | arch_change | 勾选台账 | 4项：基础资源/台账/安全/监控 |
-| 安全检查 | security | 不关联 | 4项：漏洞/基线/渗透/文件安全 |
-
-### 工作项层级结构
+### 核心实体关系
 
 ```
-SOP Template
-└── Workflow Node (流程节点)
-    └── Parent Work Item (父工作项 - 5大类)
-        └── Child Work Item (子工作项 - 验收项)
-            └── Grandchild Work Item (孙工作项)
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│    Plan     │────▶│  Inventory  │◀────│ SOP Template│
+│   运维计划   │     │    台账     │     │  SOP模板    │
+└──────┬──────┘     └─────────────┘     └──────┬──────┘
+       │                                        │
+       ▼                                        ▼
+┌─────────────┐                       ┌─────────────┐
+│Work Instance│◀──────────────────────│ Workflow    │
+│  工作实例   │                       │  工作流     │
+└─────────────┘                       └─────────────┘
 ```
 
-### 状态流转
+### 业务流程
 
-**计划状态：**
+**准入验收标准流程：**
+
 ```
-[DRAFT] → [PENDING] → [IN_PROGRESS] → [COMPLETED]
-    ↓
-[CANCELLED]
+创建计划 ──▶ 选择模板 ──▶ 关联台账 ──▶ 生成工作项 ──▶ 执行验收 ──▶ 归档
 ```
 
-**模板状态：**
-```
-[DRAFT] → [ACTIVE] → [ARCHIVED]
-```
+**状态流转：**
+
+- **计划状态**: `DRAFT` → `PENDING` → `IN_PROGRESS` → `COMPLETED`
+- **模板状态**: `DRAFT` → `ACTIVE` → `ARCHIVED`
+- **工作项状态**: `PENDING` → `IN_PROGRESS` → `COMPLETED` / `FAILED`
 
 ## 生产部署
 
-### 构建前端
+项目支持 **Serv00 Proxy 模式** 生产部署，前后端同域部署。
 
-```bash
-cd frontend
-npm run build
+### 部署包结构
+
+```
+production-deploy/
+├── backend-dist/           # 后端代码（构建产物）
+├── scripts/
+│   └── build-serv00-proxy.sh   # 打包脚本
+├── docs/
+│   └── DEPLOY.md          # 详细部署指南
+└── versions/              # 版本历史
 ```
 
-构建产物在 `frontend/dist/` 目录。
+### 部署文档
 
-### 启动生产服务
+详细部署步骤请参考 [production-deploy/docs/DEPLOY.md](production-deploy/docs/DEPLOY.md)，包含：
 
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-### Docker 部署（推荐）
-
-```bash
-# 构建镜像
-docker build -t opspilot .
-
-# 运行容器
-docker run -d -p 8000:8000 opspilot
-```
+- 环境配置（`.env` 设置）
+- Serv00 面板 Proxy 配置
+- 数据库迁移
+- 服务启动/停止
+- 版本回退
 
 ## 文档
+
+### 产品文档
 
 - [全局架构文档](OpsPilot_AI_PRD_Docs/00_Global_Architecture.md)
 - [工程规范](OpsPilot_AI_PRD_Docs/00_Engineering_Standard.md)
 - [SOP 模板引擎设计](OpsPilot_AI_PRD_Docs/Modules/Module_03_SOP_Template_Engine.md)
+
+### 工程化文档
+
+- [AI 编程助手指导](.kimi/engineering/AGENTS.md) - Kimi Code CLI 项目指导
+- [自动化工作流报告](.kimi/workflow/writeup.md) - 工作流设计与实践
+
+### 自动化 Skills
+
+项目内置以下 Kimi Skills，可通过 `/skill:<name>` 调用：
+
+| Skill                   | 用途                 | 示例                                                                       |
+| ----------------------- | ------------------ | ------------------------------------------------------------------------ |
+| `sync-module-prd`       | 校验模块 PRD 与全局架构一致性  | `/skill:sync-module-prd --module=verification`                           |
+| `prd-to-code-checklist` | PRD 转开发任务清单        | `/skill:prd-to-code-checklist --prd=Module_04_Verification_Execution.md` |
+| `generate-ddd-scaffold` | 根据 PRD 生成 DDD 代码骨架 | `/skill:generate-ddd-scaffold --prd=Module_04_Verification_Execution.md` |
+| `api-integration-test`  | 自动化 API 联调测试       | `/skill:api-integration-test --module=verification`                      |
 
 ## 参考
 
@@ -370,3 +373,4 @@ docker run -d -p 8000:8000 opspilot
 - [DDD 领域驱动设计](https://domainlanguage.com/)
 - [SQLAlchemy 文档](https://docs.sqlalchemy.org/)
 - [React 文档](https://react.dev/)
+

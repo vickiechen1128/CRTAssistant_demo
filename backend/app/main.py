@@ -63,6 +63,9 @@ if not os.path.exists(frontend_dist_dir):
 if not os.path.exists(frontend_dist_dir):
     # 备用路径：~/opspilot/frontend/dist
     frontend_dist_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend", "dist")
+if not os.path.exists(frontend_dist_dir):
+    # Serv00 部署路径：~/opspilot/frontend/dist
+    frontend_dist_dir = os.path.join(os.path.expanduser("~"), "opspilot", "frontend", "dist")
 
 if os.path.exists(frontend_dist_dir):
     from fastapi.responses import FileResponse

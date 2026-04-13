@@ -101,6 +101,16 @@ def init_db() -> None:
     except ImportError:
         pass
     
+    # 导入台账管理模块模型
+    try:
+        from app.modules.inventory.infrastructure.persistence.models import (
+            inventory_model,
+            function_module_model,
+            lifecycle_log_model,
+        )
+    except ImportError:
+        pass
+    
     Base.metadata.create_all(bind=engine)
     
     if settings.DEBUG:

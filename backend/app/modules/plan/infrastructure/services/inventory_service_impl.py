@@ -521,6 +521,7 @@ class InventoryLifecycleLogServiceImpl(InventoryLifecycleLogService):
             log_dto = CreateLifecycleLogDTO(
                 log_type=log_type,
                 event_title=event_title,
+                app_id=inventory_id,
                 description=None,
                 before_data=before_data,
                 after_data=after_data,

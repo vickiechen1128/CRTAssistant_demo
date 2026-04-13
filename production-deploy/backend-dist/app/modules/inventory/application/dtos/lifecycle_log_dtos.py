@@ -11,6 +11,7 @@ class CreateLifecycleLogDTO:
     """创建生命周期日志请求DTO"""
     log_type: str
     event_title: str
+    app_id: str = ""
     description: Optional[str] = None
     before_data: Optional[Dict[str, Any]] = None
     after_data: Optional[Dict[str, Any]] = None

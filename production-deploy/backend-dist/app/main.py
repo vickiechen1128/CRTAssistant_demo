@@ -23,6 +23,12 @@ app = FastAPI(
     version=settings.APP_VERSION
 )
 
+# 健康检查（放在最前面，避免被其他路由捕获）
+@app.get("/health")
+def health_check():
+    """健康检查接口"""
+    return {"status": "ok", "message": "服务运行正常"}
+
 # 配置CORS
 app.add_middleware(
     CORSMiddleware,
@@ -57,6 +63,9 @@ if not os.path.exists(frontend_dist_dir):
 if not os.path.exists(frontend_dist_dir):
     # 备用路径：~/opspilot/frontend/dist
     frontend_dist_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend", "dist")
+if not os.path.exists(frontend_dist_dir):
+    # Serv00 部署路径：~/opspilot/frontend/dist
+    frontend_dist_dir = os.path.join(os.path.expanduser("~"), "opspilot", "frontend", "dist")
 
 if os.path.exists(frontend_dist_dir):
     from fastapi.responses import FileResponse
@@ -81,8 +90,4 @@ if os.path.exists(frontend_dist_dir):
         return FileResponse(os.path.join(frontend_dist_dir, "index.html"))
 
 
-# 健康检查
-@app.get("/health")
-def health_check():
-    """健康检查接口"""
-    return {"status": "ok", "message": "服务运行正常"}
+

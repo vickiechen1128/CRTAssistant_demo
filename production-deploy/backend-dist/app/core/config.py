@@ -37,15 +37,14 @@ class Settings:
     ALGORITHM: str = "HS256"
     
     # CORS配置 - 支持本地开发和生产环境
-    # 同域部署：前后端共享同一域名，浏览器不会触发跨域检查
-    # 跨域部署：需要将前端域名添加到列表中
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
-        # Serv00 生产环境域名（同域部署时使用同一域名）
-        "https://your-domain.serv00.com",
+        # Serv00 生产环境域名（请替换为您的实际域名）
+        "https://your-frontend-domain.serv00.com",
+        "https://your-backend-domain.serv00.com",
     ]
     
     # 文件上传配置
